@@ -2,18 +2,18 @@ window.addEventListener('load', () => {
   const game = new Game();
   game.initGame();
   window.game = game;
-
   // ABCD - x axis
   // 1234 - y axis
   // level - 1234
 });
 class Game {
   constructor() {
-    this.board = document.querySelector('.board');
-    this.currBallContainer = null;
-    this.currStick = null;
-    this.currStickContainer = null;
-    this.sticks = null;
+    // this.board = document.querySelector('.board');
+    // this.currBallContainer = null;
+    // this.currStick = null;
+    // this.currStickContainer = null;
+    // this.sticks = null;
+    this.keys = [];
 
     this.players = {
       'white': { className: 'white', wins: WINS},
@@ -113,6 +113,8 @@ class Game {
 
     this.currPlayer = 'white';
     window.addEventListener('keydown', this.tilt);
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
   }
   
   onStickClick = (e) => {
@@ -147,17 +149,30 @@ class Game {
     el.classList.remove(className)
   }
 
-  tilt = (e) => {
-    const { max, addValue, isTiltable, useX } = TILTS[e.which.toString()];
-    const stage = document.querySelector('.stage');
-    const currPerspectiveOrigin = window.getComputedStyle(stage).perspectiveOrigin;
-    let [x, y] = currPerspectiveOrigin.split(' ').map(value => parseFloat(value));
-
-    if (isTiltable({ value: useX ? x : y, max })) {
-      x = useX ? x + addValue : x;
-      y = useX ? y : y + addValue;
+  onKeyDown = (e) => {
+    if (!this.keys.includes(e.which)) {
+      this.keys.push(e.which)
     }
+  }
 
-    stage.style['perspectiveOrigin'] = `${x}px ${y}px`
+  onKeyUp = (e) => {
+    const index = this.keys.findIndex(key => key === e.which);
+    this.keys.splice(index, 1);
+  }
+
+  tilt = (e) => {
+    if (this.keys.includes(keys.SHIFT)) {
+      const { max, addValue, isTiltable, useX } = TILTS[e.which.toString()];
+      const stage = document.querySelector('.stage');
+      const currPerspectiveOrigin = window.getComputedStyle(stage).perspectiveOrigin;
+      let [x, y] = currPerspectiveOrigin.split(' ').map(value => parseFloat(value));
+
+      if (isTiltable({ value: useX ? x : y, max })) {
+        x = useX ? x + addValue : x;
+        y = useX ? y : y + addValue;
+      }
+
+      stage.style['perspectiveOrigin'] = `${x}px ${y}px`
+    }
   }
 }
