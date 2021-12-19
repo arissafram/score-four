@@ -1,0 +1,50 @@
+.base {
+  transform-style: preserve-3d;
+  z-index: 0;
+}
+
+.side {
+  display: block; position: absolute;
+  width: 700px; 
+  height: 105px;
+  background-color: #60c2ef;
+  transform-origin: 50% 50% 0;
+}
+
+.front { 
+  transform: translateZ(400px);
+  background-color: black;
+  border: 1px solid lightgrey;
+}
+
+.back { 
+  transform: rotateY(180deg) translateZ(400px); 
+  background-color: black;
+  border: 1px solid lightgrey;
+}
+
+.top { 
+  transform: rotateX(90deg) translateZ(400px); 
+  background-color: rgb(48, 63, 2);
+  height: 800px;
+  border: 1px solid lightgrey;
+}
+
+.bottom { 
+  transform: rotateX(-90deg) translateZ(-293px);
+  background-color: rgb(48, 63, 2);
+  height: 800px;
+}
+
+.left { 
+  transform: rotateY(-90deg) translateZ(400px);
+  background-color: black;
+  border: 1px solid lightgrey;
+  width: 800px; 
+}
+.right { 
+  transform: rotateY(90deg) translateZ(300px);
+  background-color: black;
+  border: 1px solid lightgrey;
+  width: 800px; 
+}

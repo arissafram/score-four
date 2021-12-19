@@ -1,0 +1,120 @@
+.board {
+  position: relative;
+  transform-style: preserve-3d;
+  z-index: 1;
+}
+
+.stick-container {
+  position: absolute;
+  bottom: 0px;
+  height: 220px;
+  margin: 0 20px;
+  width: 50px;
+  background-color: unset;
+  transform-origin: 50% 50% 0;
+  pointer-events: none;
+}
+
+.stick {
+  position: absolute;
+  border-right: 10px solid rgb(48, 48, 48);
+  box-sizing: content-box;
+  top: 0;
+  bottom: 0;
+  right: 50%;
+  left: 50%;
+  pointer-events: auto;
+  border-radius: 3px;
+  border-bottom: 1px solid black;
+}
+
+.stick.hover {
+  border-right: 10px solid limegreen;
+}
+
+.ball-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transform: translateZ(150px) translateX(2px);
+}
+
+.ball {
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  z-index: 2;
+}
+
+.ball.black {
+  background: linear-gradient(
+    #000, 
+    #0a0e2d 20%, 
+    #10153f 50%, 
+    #0a0e2d 80%, 
+    #000 100%
+  );
+}
+
+.ball.white {
+  background: linear-gradient(
+    #a7a7a7,
+    rgb(199, 198, 198) 20%,
+    #ede6e6 50%,
+    rgb(199, 198, 198) 80%,
+    #ede6e6 100%
+  );
+}
+
+.row-one, .stick-container-0 {
+  transform: translateZ(350px) translateX(0px);
+}
+.row-two, .stick-container-1 {
+  transform: translateZ(350px) translateX(200px);
+}
+.row-three, .stick-container-2 {
+  transform: translateZ(350px) translateX(400px);
+}
+.row-four, .stick-container-3 {
+  transform: translateZ(350px) translateX(600px);
+}
+
+.row-five, .stick-container-4 {
+  transform: translateZ(150px) translateX(0px);
+}
+.row-six, .stick-container-5 {
+  transform: translateZ(150px) translateX(200px);
+}
+.row-seven, .stick-container-6 {
+  transform: translateZ(150px) translateX(400px);
+}
+.row-eight, .stick-container-7 {
+  transform: translateZ(150px) translateX(600px);
+}
+
+.row-nine, .stick-container-8 {
+  transform: translateZ(-50px) translateX(0px);
+}
+.row-ten, .stick-container-9 {
+  transform: translateZ(-50px) translateX(200px);
+}
+.row-eleven, .stick-container-10 {
+  transform: translateZ(-50px) translateX(400px);
+}
+.row-twelve, .stick-container-11 {
+  transform: translateZ(-50px) translateX(600px);
+}
+
+.row-thirteen, .stick-container-12 {
+  transform: translateZ(-250px) translateX(0px);
+}
+.row-fourteen,  .stick-container-13 {
+  transform: translateZ(-250px) translateX(200px);
+}
+.row-fifteen, .stick-container-14 {
+  transform: translateZ(-250px) translateX(400px);
+}
+.row-sixteen, .stick-container-15 {
+  transform: translateZ(-250px) translateX(600px);
+}

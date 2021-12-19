@@ -1,0 +1,9 @@
+.stage {
+  width: 300px; height: 300px;
+  perspective: 8000px;
+  perspective-origin: -1100px -600px;
+  position: absolute;
+  left: 300px;
+  bottom: 0px;
+  /* animation: rotate 2s infinite alternate; */
+}
