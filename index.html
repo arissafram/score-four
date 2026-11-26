@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Score Four</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header><div id="status">Black's turn</div></header>
+<main>
+  <section id="view-wrap">
+    <div id="view"></div>
+    <p class="hint">Drag to rotate · scroll or pinch to zoom</p>
+  </section>
+  <aside id="panel">
+    <div id="minimap"></div>
+    <div class="buttons">
+      <button id="btn-top">Top view</button>
+      <button id="btn-reset">Reset camera</button>
+      <button id="btn-new">New game</button>
+    </div>
+    <label>Mode <select id="mode"><option value="2p">Two players</option><option value="cpu">Vs computer</option></select></label>
+    <label>Level <select id="level"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option><option value="expert">Expert</option></select></label>
+    <label>First <select id="first"><option value="human">Human</option><option value="cpu">Computer</option></select></label>
+    <div id="score">Black 0 · White 0</div>
+  </aside>
+</main>
+<script type="module" src="main.js"></script>
+</body>
+</html>
