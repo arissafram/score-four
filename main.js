@@ -32,6 +32,7 @@ function refresh() {
   scene.setGhost(showGhost ? hoverPeg : null, showGhost ? game.heights[hoverPeg] : 0, game.turn);
   minimap.render(game, hoverPeg);
   const cpu = vsCpu();
+  $('first').disabled = !cpu; // who goes first only matters against the computer
   $('status').textContent = game.winner
     ? (cpu ? (game.winner === cpuPlayer() ? 'Computer wins!' : 'You win!') : `${NAME[game.winner]} wins!`)
     : game.draw ? 'Draw'
@@ -63,8 +64,8 @@ function afterMove() {
   thinking = true;
   const id = ++requestId;
   const state = JSON.parse(JSON.stringify(game));
-  // short pause so the human's bead lands before the computer answers
-  setTimeout(() => { if (id === requestId) worker.postMessage({ id, state, level: $('level').value }); }, 400);
+  // one strength only: the timed 'hard' search (~1 s), which also lets the human's bead land
+  worker.postMessage({ id, state, level: 'hard' });
 }
 
 function newGame() {
@@ -79,7 +80,7 @@ function newGame() {
 $('btn-top').onclick = () => scene.topView();
 $('btn-reset').onclick = () => scene.resetCamera();
 $('btn-new').onclick = newGame;
-for (const id of ['mode', 'level', 'first']) $(id).onchange = newGame;
+for (const id of ['mode', 'first']) $(id).onchange = newGame;
 refresh();
 
 window.scoreFour = { get game() { return game; }, play, newGame };

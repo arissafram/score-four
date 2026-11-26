@@ -20,8 +20,8 @@ Styling is NOT a priority yet: plain layout, default fonts. Keep files small and
 - Right panel:
   - `#minimap` — four 4×4 grids, one per layer (1 = bottom … 4 = top), seen from above.
   - Buttons `#btn-top` (top-down view), `#btn-reset` (reset camera), `#btn-new` (new game).
-  - Setup: `#mode` select (`2p` = two players, `cpu` = vs computer), `#level` select
-    (`easy`, `medium`, `hard`, `expert`), `#first` select (`human`, `cpu` — who plays first vs computer).
+  - Setup: `#mode` select labelled Opponent (`2p` = Human, `cpu` = Computer); the computer always searches at the `hard` level; no level select.
+    `#first` select (`human`, `cpu` — who plays first vs computer; disabled when the opponent is Human).
   - `#score` text: "Black 0 · White 0".
 - On phones the right panel stacks under the view.
 

@@ -1,4 +1,6 @@
-const C = 24; // px per cell
+const C = 24; // css px per cell
+const DPR = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)); // crisp when scaled up
+const INK = '#000', BONE = '#fff', ACCENT = '#ffd400', FIELD = '#1d3fd6';
 
 export function createMinimap(container, { onPegClick = () => {} } = {}) {
   const canvases = [];
@@ -8,7 +10,7 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
     wrap.className = 'layer';
     wrap.textContent = `Layer ${z + 1}${z === 0 ? ' (bottom)' : z === 3 ? ' (top)' : ''}`;
     const cv = document.createElement('canvas');
-    cv.width = cv.height = C * 4;
+    cv.width = cv.height = C * 4 * DPR;
     cv.style.display = 'block';
     cv.style.cursor = 'pointer';
     cv.addEventListener('click', (e) => {
@@ -30,7 +32,8 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
     }
     for (let z = 0; z < 4; z++) {
       const g = canvases[z].getContext('2d');
-      g.fillStyle = '#9a6324';
+      g.setTransform(DPR, 0, 0, DPR, 0, 0);
+      g.fillStyle = FIELD;
       g.fillRect(0, 0, C * 4, C * 4);
       for (let p = 0; p < 16; p++) {
         const cell = p + 16 * z, cx = (p % 4 + 0.5) * C, cy = (Math.floor(p / 4) + 0.5) * C;
@@ -39,22 +42,23 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
         g.beginPath();
         g.arc(cx, cy, C * 0.36, 0, Math.PI * 2);
         if (v) {
-          g.fillStyle = v === 1 ? '#1a1a1a' : '#f2f2f2';
+          g.fillStyle = v === 1 ? INK : BONE;
           g.fill();
+          g.strokeStyle = INK; g.lineWidth = 1; g.stroke();
         } else {
-          g.fillStyle = '#7a4d1a';
-          g.beginPath(); g.arc(cx, cy, 2, 0, Math.PI * 2); g.fill();
+          g.fillStyle = 'rgba(255,255,255,0.55)';
+          g.beginPath(); g.arc(cx, cy, 1.5, 0, Math.PI * 2); g.fill();
         }
         if (cell === ghostCell) {
           g.beginPath(); g.arc(cx, cy, C * 0.36, 0, Math.PI * 2);
           g.setLineDash([3, 3]);
-          g.strokeStyle = state.turn === 1 ? '#1a1a1a' : '#f2f2f2';
-          g.lineWidth = 2; g.stroke();
+          g.strokeStyle = ACCENT;
+          g.lineWidth = 1.5; g.stroke();
         }
         if (win.has(cell)) {
           g.setLineDash([]);
           g.beginPath(); g.arc(cx, cy, C * 0.44, 0, Math.PI * 2);
-          g.strokeStyle = '#ff2222'; g.lineWidth = 3; g.stroke();
+          g.strokeStyle = ACCENT; g.lineWidth = 2; g.stroke();
         }
       }
     }

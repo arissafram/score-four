@@ -13,7 +13,10 @@
 </script>
 </head>
 <body>
-<header><div id="status">Black's turn</div></header>
+<header>
+  <h1 class="wordmark">Score Four</h1>
+  <div id="status">Black's turn</div>
+</header>
 <main>
   <section id="view-wrap">
     <div id="view"></div>
@@ -26,9 +29,10 @@
       <button id="btn-reset">Reset camera</button>
       <button id="btn-new">New game</button>
     </div>
-    <label>Mode <select id="mode"><option value="2p">Two players</option><option value="cpu">Vs computer</option></select></label>
-    <label>Level <select id="level"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option><option value="expert">Expert</option></select></label>
+    <div class="settings">
+    <label>Opponent <select id="mode"><option value="2p">Human</option><option value="cpu">Computer</option></select></label>
     <label>First <select id="first"><option value="human">Human</option><option value="cpu">Computer</option></select></label>
+    </div>
     <div id="score">Black 0 · White 0</div>
   </aside>
 </main>

@@ -5,7 +5,6 @@ const S = 1;            // peg spacing
 const BEAD_H = 0.5;     // vertical step per bead
 const BASE_Y = 0.3;     // centre height of bottom bead
 const PEG_H = BASE_Y + 4 * BEAD_H + 0.1;
-const INTERNAL_H = 240; // internal render height (px)
 const HOME = new THREE.Vector3(5.5, 6.5, 8);
 const TARGET = new THREE.Vector3(0, 1, 0);
 
@@ -13,33 +12,39 @@ const pegPos = (peg) => [((peg % 4) - 1.5) * S, (Math.floor(peg / 4) - 1.5) * S]
 const beadY = (z) => BASE_Y + z * BEAD_H;
 
 export function createScene(container, { onPegClick = () => {}, onPegHover = () => {} } = {}) {
-  const renderer = new THREE.WebGLRenderer({ antialias: false });
-  renderer.setPixelRatio(1);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x335577);
+  scene.background = new THREE.Color(0x1d3fd6); // flat colour field
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
   camera.position.copy(HOME);
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.6);
-  sun.position.set(4, 10, 6);
+  // flat, even light: colour does the work, no shadows
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x999999, 1.9));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(-4, 10, 6);
   scene.add(sun);
 
-  const lambert = (color, extra = {}) => new THREE.MeshLambertMaterial({ color, flatShading: true, ...extra });
+  const HOT = 0xffd400;
+  const flat = (color, extra = {}) => new THREE.MeshLambertMaterial({ color, flatShading: false, ...extra });
   const mats = {
-    board: lambert(0x9a6324), peg: lambert(0x999999), pegHi: lambert(0xdd2222),
-    1: lambert(0x1a1a1a), 2: lambert(0xf2f2f2), red: lambert(0xff2222),
-    ghost1: lambert(0x1a1a1a, { transparent: true, opacity: 0.45 }),
-    ghost2: lambert(0xf2f2f2, { transparent: true, opacity: 0.45 }),
+    board: flat(0xffffff), peg: flat(0x000000), pegHi: flat(HOT, { emissive: HOT, emissiveIntensity: 0.4 }),
+    1: flat(0x111111), 2: flat(0xffffff), red: flat(HOT, { emissive: HOT, emissiveIntensity: 0.4 }),
+    pale: flat(0xfff3a0, { emissive: 0xfff3a0, emissiveIntensity: 0.4 }),
+    ghost1: flat(0x000000, { transparent: true, opacity: 0.35, depthWrite: false }),
+    ghost2: flat(0xffffff, { transparent: true, opacity: 0.55, depthWrite: false }),
   };
 
-  const board = new THREE.Mesh(new THREE.BoxGeometry(4.4 * S, 0.3, 4.4 * S), mats.board);
-  board.position.y = -0.15;
+  const board = new THREE.Mesh(new THREE.BoxGeometry(4.4 * S, 0.24, 4.4 * S), mats.board);
+  board.position.y = -0.12;
   scene.add(board);
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(4.4 * S, 0.1, 4.4 * S), flat(0x000000));
+  plinth.position.y = -0.29;
+  scene.add(plinth);
 
-  const pegGeo = new THREE.CylinderGeometry(0.06, 0.06, PEG_H, 6);
+  const pegGeo = new THREE.CylinderGeometry(0.05, 0.05, PEG_H, 24);
   const hitGeo = new THREE.CylinderGeometry(0.45, 0.45, PEG_H + 0.3, 8);
   const hitMat = new THREE.MeshBasicMaterial({ visible: false });
   const pegs = [], hits = [];
@@ -54,8 +59,19 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
     scene.add(hit); hits.push(hit);
   }
 
-  const beadGeo = new THREE.SphereGeometry(0.38, 8, 4);
-  beadGeo.scale(1, 0.62, 1);
+  // rounded wooden/ceramic bead with a hole for the peg
+  const prof = [], R = 0.38, r = 0.075, h = 0.23, c = 0.15;
+  prof.push(new THREE.Vector2(r, -h + 0.03));
+  for (let i = 0; i <= 12; i++) { // rounded outer edge: bottom corner, then top corner
+    const a = -Math.PI / 2 + (Math.min(i, 6) / 6) * (Math.PI / 2) + (Math.max(i - 6, 0) / 6) * (Math.PI / 2);
+    const cy = i <= 6 ? -h + c : h - c;
+    prof.push(new THREE.Vector2(R - c + c * Math.cos(a), cy + c * Math.sin(a)));
+    if (i === 6) prof.push(new THREE.Vector2(R, h - c));
+  }
+  prof.push(new THREE.Vector2(r, h - 0.03));
+  prof.push(new THREE.Vector2(r, -h + 0.03));
+  const beadGeo = new THREE.LatheGeometry(prof, 48);
+  beadGeo.computeVertexNormals();
   const beads = new Map(); // cell -> mesh
   const drops = [];        // {mesh, from, to, t}
 
@@ -78,11 +94,10 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
     tween = { from: camera.position.clone(), to, t: 0 };
   }
 
-  // --- resize (low internal resolution, CSS scales up)
+  // --- resize (full resolution)
   function resize() {
     const w = container.clientWidth || 1, h = container.clientHeight || 1;
-    const ih = Math.min(INTERNAL_H, h);
-    renderer.setSize(Math.max(1, Math.round(w * ih / h)), ih, false);
+    renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
@@ -135,8 +150,9 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
       d.mesh.position.y = d.from + (d.to - d.from) * d.t * d.t;
       if (d.t >= 1) drops.splice(i, 1);
     }
-    const on = Math.floor(clock.elapsedTime * 4) % 2 === 0;
-    for (const m of flashing) m.material = on ? mats.red : m.userData.mat;
+    // winning line blinks: black <-> yellow, white <-> pale yellow
+    const on = Math.floor(clock.elapsedTime * 3) % 2 === 0;
+    for (const m of flashing) m.material = on ? (m.userData.mat === mats[2] ? mats.pale : mats.red) : m.userData.mat;
     renderer.render(scene, camera);
   });
 
