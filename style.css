@@ -22,7 +22,7 @@
 .score-four .sf-status { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
 
 .score-four .sf-main { flex: 1; display: flex; min-height: 0; }
-.score-four .sf-view-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--sf-field); color: var(--sf-paper); }
+.score-four .sf-view-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .score-four .sf-view { flex: 1; position: relative; min-height: 300px; }
 .score-four .sf-view canvas {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -31,7 +31,7 @@
 /* zoom buttons: pointer devices only (touch-only devices pinch instead) */
 .score-four .sf-zoom { position: absolute; right: 12px; bottom: 12px; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
 .score-four .sf-zoom button { width: 32px; height: 32px; padding: 0; text-align: center; font-size: 1.1rem; line-height: 1; }
-.score-four .sf-zoom button:hover { background: var(--sf-field); border-color: var(--sf-paper); color: var(--sf-paper); }
+.score-four .sf-zoom button:hover { background: var(--sf-field); border-color: var(--sf-field); color: var(--sf-paper); }
 @media not (any-pointer: fine) { .score-four .sf-zoom { display: none; } }
 /* no WebGL: a note instead of the board; camera controls are hidden, the mini-map still plays */
 .score-four .sf-fallback { margin: 0; padding: 24px; max-width: 36em; font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
@@ -49,7 +49,7 @@
 
 .score-four .sf-minimap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
 .score-four .sf-minimap .layer { font-size: 0.7rem; font-weight: 700; letter-spacing: -0.01em; }
-.score-four .sf-minimap canvas { width: 100%; height: auto; margin-top: 4px; }
+.score-four .sf-minimap canvas { width: 100%; height: auto; margin-top: 4px; border: 1px solid currentColor; }
 
 .score-four .sf-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .score-four button {
@@ -86,14 +86,14 @@
   .score-four .sf-panel-toggle {
     display: flex; justify-content: space-between; align-items: center; width: 100%;
     padding: 14px 16px; border: 0; border-top: 1px solid var(--sf-ink); border-bottom: 1px solid var(--sf-ink); font-size: 0.9rem;
-    background: var(--sf-field); color: var(--sf-paper);
+    background: transparent; color: var(--sf-ink);
   }
   .score-four .sf-caret {
     width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
     border-top: 6px solid currentColor; transition: transform 0.15s;
   }
-  .score-four .sf-panel-toggle:hover { background: var(--sf-field); color: var(--sf-paper); }
-  .score-four .sf-panel-toggle:focus-visible { outline: 2px solid var(--sf-paper); outline-offset: -4px; }
+  .score-four .sf-panel-toggle:hover { background: transparent; color: var(--sf-ink); }
+  .score-four .sf-panel-toggle:focus-visible { outline-offset: -4px; }
   .score-four .sf-panel-toggle[aria-expanded="true"] .sf-caret { transform: rotate(180deg); }
   .score-four .sf-panel-toggle[aria-expanded="false"] + .sf-panel-body { display: none; }
   .score-four .sf-minimap { grid-template-columns: repeat(4, 1fr); gap: 8px; }

@@ -1,6 +1,6 @@
 const C = 24; // css px per cell
 const DPR = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)); // crisp when scaled up
-const INK = '#000', BONE = '#fff', ACCENT = '#ffd400', FIELD = '#1d3fd6';
+const INK = '#000', BONE = '#fff', ACCENT = '#ffd400';
 
 export function createMinimap(container, { onPegClick = () => {} } = {}) {
   const canvases = [];
@@ -30,11 +30,11 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
     if (ghostPeg !== null && !state.winner && !state.draw && state.heights[ghostPeg] < 4) {
       ghostCell = ghostPeg + 16 * state.heights[ghostPeg];
     }
+    const text = getComputedStyle(container).color; // grids are transparent: dots follow the host's text colour
     for (let z = 0; z < 4; z++) {
       const g = canvases[z].getContext('2d');
       g.setTransform(DPR, 0, 0, DPR, 0, 0);
-      g.fillStyle = FIELD;
-      g.fillRect(0, 0, C * 4, C * 4);
+      g.clearRect(0, 0, C * 4, C * 4);
       for (let p = 0; p < 16; p++) {
         const cell = p + 16 * z, cx = (p % 4 + 0.5) * C, cy = (Math.floor(p / 4) + 0.5) * C;
         const v = state.cells[cell];
@@ -46,8 +46,9 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
           g.fill();
           g.strokeStyle = INK; g.lineWidth = 1; g.stroke();
         } else {
-          g.fillStyle = 'rgba(255,255,255,0.55)';
+          g.fillStyle = text; g.globalAlpha = 0.55;
           g.beginPath(); g.arc(cx, cy, 1.5, 0, Math.PI * 2); g.fill();
+          g.globalAlpha = 1;
         }
         if (cell === ghostCell) {
           g.beginPath(); g.arc(cx, cy, C * 0.36, 0, Math.PI * 2);

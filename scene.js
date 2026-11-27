@@ -12,12 +12,11 @@ const pegPos = (peg) => [((peg % 4) - 1.5) * S, (Math.floor(peg / 4) - 1.5) * S]
 const beadY = (z) => BASE_Y + z * BEAD_H;
 
 export function createScene(container, { onPegClick = () => {}, onPegHover = () => {} } = {}) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // transparent: the page shows through
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1d3fd6); // flat colour field
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
   camera.position.copy(HOME);
 
