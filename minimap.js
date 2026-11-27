@@ -8,7 +8,7 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
   for (let z = 0; z < 4; z++) {
     const wrap = document.createElement('div');
     wrap.className = 'layer';
-    wrap.textContent = `Layer ${z + 1}${z === 0 ? ' (bottom)' : z === 3 ? ' (top)' : ''}`;
+    wrap.textContent = `Layer ${z + 1}`;
     const cv = document.createElement('canvas');
     cv.width = cv.height = C * 4 * DPR;
     cv.style.display = 'block';
@@ -20,7 +20,7 @@ export function createMinimap(container, { onPegClick = () => {} } = {}) {
       if (x >= 0 && x < 4 && y >= 0 && y < 4) onPegClick(x + 4 * y);
     });
     wrap.appendChild(cv);
-    container.prepend(wrap); // top layer listed first
+    container.appendChild(wrap); // layer 1 (bottom) listed first
     canvases[z] = cv;
   }
 

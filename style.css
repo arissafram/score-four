@@ -28,13 +28,20 @@
   position: absolute; inset: 0; width: 100%; height: 100%;
   touch-action: none; display: block;
 }
+/* zoom buttons: pointer devices only (touch-only devices pinch instead) */
+.score-four .sf-zoom { position: absolute; right: 12px; bottom: 12px; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
+.score-four .sf-zoom button { width: 32px; height: 32px; padding: 0; text-align: center; font-size: 1.1rem; line-height: 1; }
+.score-four .sf-zoom button:hover { background: var(--sf-field); border-color: var(--sf-paper); color: var(--sf-paper); }
+@media not (any-pointer: fine) { .score-four .sf-zoom { display: none; } }
 .score-four .sf-hint { margin: 0; padding: 10px 24px 14px; font-size: 0.75rem; }
 
 .score-four .sf-panel {
   width: 280px; padding: 0; display: flex; flex-direction: column;
   border-left: 1px solid var(--sf-ink); overflow-y: auto;
 }
-.score-four .sf-panel > * { padding: 16px 24px; border-bottom: 1px solid var(--sf-ink); }
+.score-four .sf-panel-toggle { display: none; }
+.score-four .sf-panel-body { flex: 1; display: flex; flex-direction: column; }
+.score-four .sf-panel-body > * { padding: 16px 24px; border-bottom: 1px solid var(--sf-ink); }
 
 .score-four .sf-minimap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
 .score-four .sf-minimap .layer { font-size: 0.7rem; font-weight: 700; letter-spacing: -0.01em; }
@@ -61,7 +68,7 @@
 }
 .score-four select:disabled { opacity: 0.35; cursor: default; }
 
-.score-four .sf-panel > .sf-score { margin-top: auto; border-bottom: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; }
+.score-four .sf-panel-body > .sf-score { margin-top: auto; border-bottom: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; }
 
 /* narrow container (phone, or a narrow column on a host page): panel stacks under the view */
 @container (max-width: 700px) {
@@ -71,7 +78,20 @@
   .score-four .sf-view { min-height: 58vh; }
   .score-four .sf-hint { padding: 8px 16px 12px; }
   .score-four .sf-panel { width: auto; border-left: 0; overflow: visible; }
-  .score-four .sf-panel > * { padding: 14px 16px; }
+  .score-four .sf-panel-body > * { padding: 14px 16px; }
+  .score-four .sf-panel-toggle {
+    display: flex; justify-content: space-between; align-items: center; width: 100%;
+    padding: 14px 16px; border: 0; border-top: 1px solid var(--sf-ink); border-bottom: 1px solid var(--sf-ink); font-size: 0.9rem;
+    background: var(--sf-field); color: var(--sf-paper);
+  }
+  .score-four .sf-caret {
+    width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 6px solid currentColor; transition: transform 0.15s;
+  }
+  .score-four .sf-panel-toggle:hover { background: var(--sf-field); color: var(--sf-paper); }
+  .score-four .sf-panel-toggle:focus-visible { outline: 2px solid var(--sf-paper); outline-offset: -4px; }
+  .score-four .sf-panel-toggle[aria-expanded="true"] .sf-caret { transform: rotate(180deg); }
+  .score-four .sf-panel-toggle[aria-expanded="false"] + .sf-panel-body { display: none; }
   .score-four .sf-minimap { grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .score-four .sf-minimap .layer { font-size: 0.6rem; }
 }

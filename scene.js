@@ -116,18 +116,86 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
   }
   let down = null, hover = null;
   const el = renderer.domElement;
-  el.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, moved: false }; });
+  el.addEventListener('pointerdown', (e) => {
+    down = { x: e.clientX, y: e.clientY, moved: false };
+    if (e.pointerType === 'touch') touchDown(e);
+  });
   el.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') touchMove(e);
     if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) down.moved = true;
     if (down) return;
     const p = pick(e);
     if (p !== hover) { hover = p; onPegHover(p); }
   });
   el.addEventListener('pointerup', (e) => {
+    if (e.pointerType === 'touch') touchUp(e);
     const d = down; down = null;
     if (d && !d.moved) { const p = pick(e); if (p !== null) onPegClick(p); }
   });
+  el.addEventListener('pointercancel', (e) => { if (e.pointerType === 'touch') touchUp(e); down = null; });
   el.addEventListener('pointerleave', () => { if (hover !== null) { hover = null; onPegHover(null); } });
+
+  // --- swipe to scroll: the canvas is touch-action:none (so small drags rotate and pinch zooms),
+  // but a one-finger swipe that is mostly vertical and long or fast scrolls the page instead.
+  const SWIPE_RATIO = 2;      // |dy| must be at least 2× |dx|
+  const SWIPE_LONG = 90;      // px of vertical travel…
+  const SWIPE_FAST = 0.5;     // …or px/ms of vertical speed, once past SWIPE_MIN px
+  const SWIPE_MIN = 30;
+  const ROTATE_LOCK = 30;     // px sideways before deciding = it's a rotate, never a scroll
+  const touches = new Set();
+  let swipe = null;           // { x, y, lastY, t, vy, mode: null|'rotate'|'scroll', camera }
+  let scrolling = false, glide = 0;
+  function scrollParent() {
+    for (let n = container.parentElement; n && n !== document.body; n = n.parentElement) {
+      const oy = getComputedStyle(n).overflowY;
+      if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && n.scrollHeight > n.clientHeight) return n;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+  function touchDown(e) {
+    cancelAnimationFrame(glide);
+    touches.add(e.pointerId);
+    if (touches.size === 1) {
+      swipe = { x: e.clientX, y: e.clientY, lastY: e.clientY, t: e.timeStamp, vy: 0, mode: null,
+        camera: tween ? tween.to.clone() : camera.position.clone(), target: scrollParent() };
+    } else if (swipe && !swipe.mode) swipe.mode = 'rotate'; // pinch: never a scroll
+  }
+  function touchMove(e) {
+    if (!swipe || !touches.has(e.pointerId)) return;
+    const dt = Math.max(1, e.timeStamp - swipe.t);
+    const step = e.clientY - swipe.lastY;
+    swipe.vy = 0.7 * (step / dt) + 0.3 * swipe.vy; // smoothed px/ms
+    swipe.lastY = e.clientY; swipe.t = e.timeStamp;
+    if (swipe.mode === 'scroll') { swipe.target.scrollTop -= step; return; }
+    if (swipe.mode) return;
+    const dx = Math.abs(e.clientX - swipe.x), dy = Math.abs(e.clientY - swipe.y);
+    if (dx > ROTATE_LOCK) { swipe.mode = 'rotate'; return; }
+    if (dy < SWIPE_RATIO * dx) return;
+    if (dy > SWIPE_LONG || (dy > SWIPE_MIN && Math.abs(swipe.vy) > SWIPE_FAST)) {
+      swipe.mode = 'scroll';
+      scrolling = true;
+      controls.enabled = false;
+      moveCamera(swipe.camera);                         // undo the tilt the swipe started
+      swipe.target.scrollTop -= e.clientY - swipe.y;   // catch the page up with the finger
+    }
+  }
+  function touchUp(e) {
+    touches.delete(e.pointerId);
+    if (touches.size || !swipe) return;
+    if (swipe.mode === 'scroll') glideScroll(swipe.target, swipe.vy);
+    swipe = null;
+    scrolling = false;
+  }
+  function glideScroll(target, v) { // momentum after the finger lifts
+    let last = performance.now();
+    const tick = (now) => {
+      const dt = now - last; last = now;
+      target.scrollTop -= v * dt;
+      v *= Math.pow(0.95, dt / 16);
+      if (Math.abs(v) > 0.02) glide = requestAnimationFrame(tick);
+    };
+    glide = requestAnimationFrame(tick);
+  }
 
   // --- flash
   let flashing = [];
@@ -143,7 +211,7 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
       camera.lookAt(controls.target);
       if (tween.t >= 1) tween = null;
     }
-    controls.enabled = !tween;
+    controls.enabled = !tween && !scrolling;
     if (!tween) controls.update();
     for (let i = drops.length - 1; i >= 0; i--) {
       const d = drops[i];
@@ -190,9 +258,17 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
       moveCamera(controls.target.clone().add(new THREE.Vector3(0, d, 0.01)));
     },
     resetCamera() { moveCamera(HOME.clone()); },
+    // smooth zoom step: factor < 1 moves closer; clamped to the controls' distance limits
+    zoomBy(factor) {
+      const off = (tween ? tween.to : camera.position).clone().sub(controls.target);
+      off.setLength(THREE.MathUtils.clamp(off.length() * factor, controls.minDistance, controls.maxDistance));
+      moveCamera(controls.target.clone().add(off));
+    },
+    getDistance() { return camera.position.distanceTo(controls.target); },
     // stop rendering and free everything (GPU resources, observers, canvas)
     destroy() {
       renderer.setAnimationLoop(null);
+      cancelAnimationFrame(glide);
       resizeObserver.disconnect();
       controls.dispose();
       scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });

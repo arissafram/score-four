@@ -1,203 +1,261 @@
-import { useRef as mn, useEffect as pn, createElement as wn } from "react";
-import * as c from "three";
-import { OrbitControls as gn } from "three/addons/controls/OrbitControls.js";
-function yn(e, i, u) {
-  return e + 4 * i + 16 * u;
+import { useRef as It, useEffect as Ct, createElement as St } from "react";
+import * as a from "three";
+import { OrbitControls as Tt } from "three/addons/controls/OrbitControls.js";
+function Dt(n, l, d) {
+  return n + 4 * l + 16 * d;
 }
-const j = (e) => e >= 0 && e < 4, vn = (() => {
-  const e = [];
-  for (let i = -1; i <= 1; i++) for (let u = -1; u <= 1; u++) for (let f = -1; f <= 1; f++)
-    if (!((i || u || f) <= 0))
-      for (let l = 0; l < 4; l++) for (let r = 0; r < 4; r++) for (let h = 0; h < 4; h++)
-        !j(l + 3 * i) || !j(r + 3 * u) || !j(h + 3 * f) || e.push([0, 1, 2, 3].map((o) => yn(l + o * i, r + o * u, h + o * f)));
-  return e;
-})(), ln = Array.from({ length: 64 }, () => []);
-for (const e of vn) for (const i of e) ln[i].push(e);
-function en() {
+const q = (n) => n >= 0 && n < 4, Pt = (() => {
+  const n = [];
+  for (let l = -1; l <= 1; l++) for (let d = -1; d <= 1; d++) for (let f = -1; f <= 1; f++)
+    if (!((l || d || f) <= 0))
+      for (let i = 0; i < 4; i++) for (let r = 0; r < 4; r++) for (let w = 0; w < 4; w++)
+        !q(i + 3 * l) || !q(r + 3 * d) || !q(w + 3 * f) || n.push([0, 1, 2, 3].map((u) => Dt(i + u * l, r + u * d, w + u * f)));
+  return n;
+})(), dt = Array.from({ length: 64 }, () => []);
+for (const n of Pt) for (const l of n) dt[l].push(n);
+function lt() {
   return { cells: Array(64).fill(0), heights: Array(16).fill(0), turn: 1, winner: 0, winLine: null, draw: !1, moves: [] };
 }
-function an(e, i) {
-  return !e.winner && !e.draw && i >= 0 && i < 16 && e.heights[i] < 4;
+function mt(n, l) {
+  return !n.winner && !n.draw && l >= 0 && l < 16 && n.heights[l] < 4;
 }
-function bn(e, i) {
-  if (!an(e, i)) return -1;
-  const u = e.turn, f = i + 16 * e.heights[i];
-  e.cells[f] = u, e.heights[i]++, e.moves.push(i);
-  for (const s of ln[f])
-    if (s.every((l) => e.cells[l] === u)) {
-      e.winner = u, e.winLine = s.slice();
+function Rt(n, l) {
+  if (!mt(n, l)) return -1;
+  const d = n.turn, f = l + 16 * n.heights[l];
+  n.cells[f] = d, n.heights[l]++, n.moves.push(l);
+  for (const s of dt[f])
+    if (s.every((i) => n.cells[i] === d)) {
+      n.winner = d, n.winLine = s.slice();
       break;
     }
-  return !e.winner && e.moves.length === 64 && (e.draw = !0), e.turn = u === 1 ? 2 : 1, f;
+  return !n.winner && n.moves.length === 64 && (n.draw = !0), n.turn = d === 1 ? 2 : 1, f;
 }
-const G = 1, cn = 0.5, fn = 0.3, O = fn + 4 * cn + 0.1, tn = new c.Vector3(5.5, 6.5, 8), Mn = new c.Vector3(0, 1, 0), $ = (e) => [(e % 4 - 1.5) * G, (Math.floor(e / 4) - 1.5) * G], Y = (e) => fn + e * cn;
-function kn(e, { onPegClick: i = () => {
-}, onPegHover: u = () => {
+const O = 1, ht = 0.5, pt = 0.3, N = pt + 4 * ht + 0.1, at = new a.Vector3(5.5, 6.5, 8), Ut = new a.Vector3(0, 1, 0), Z = (n) => [(n % 4 - 1.5) * O, (Math.floor(n / 4) - 1.5) * O], K = (n) => pt + n * ht;
+function zt(n, { onPegClick: l = () => {
+}, onPegHover: d = () => {
 } } = {}) {
-  const f = new c.WebGLRenderer({ antialias: !0 });
-  f.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)), e.appendChild(f.domElement);
-  const s = new c.Scene();
-  s.background = new c.Color(1916886);
-  const l = new c.PerspectiveCamera(40, 1, 0.1, 100);
-  l.position.copy(tn), s.add(new c.HemisphereLight(16777215, 10066329, 1.9));
-  const r = new c.DirectionalLight(16777215, 1.1);
+  const f = new a.WebGLRenderer({ antialias: !0 });
+  f.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)), n.appendChild(f.domElement);
+  const s = new a.Scene();
+  s.background = new a.Color(1916886);
+  const i = new a.PerspectiveCamera(40, 1, 0.1, 100);
+  i.position.copy(at), s.add(new a.HemisphereLight(16777215, 10066329, 1.9));
+  const r = new a.DirectionalLight(16777215, 1.1);
   r.position.set(-4, 10, 6), s.add(r);
-  const h = 16765952, o = (n, a = {}) => new c.MeshLambertMaterial({ color: n, flatShading: !1, ...a }), t = {
-    board: o(16777215),
-    peg: o(0),
-    pegHi: o(h, { emissive: h, emissiveIntensity: 0.4 }),
-    1: o(1118481),
-    2: o(16777215),
-    red: o(h, { emissive: h, emissiveIntensity: 0.4 }),
-    pale: o(16774048, { emissive: 16774048, emissiveIntensity: 0.4 }),
-    ghost1: o(0, { transparent: !0, opacity: 0.35, depthWrite: !1 }),
-    ghost2: o(16777215, { transparent: !0, opacity: 0.55, depthWrite: !1 })
-  }, w = new c.Mesh(new c.BoxGeometry(4.4 * G, 0.24, 4.4 * G), t.board);
-  w.position.y = -0.12, s.add(w);
-  const k = new c.Mesh(new c.BoxGeometry(4.4 * G, 0.1, 4.4 * G), o(0));
-  k.position.y = -0.29, s.add(k);
-  const v = new c.CylinderGeometry(0.05, 0.05, O, 24), A = new c.CylinderGeometry(0.45, 0.45, O + 0.3, 8), I = new c.MeshBasicMaterial({ visible: !1 }), T = [], U = [];
-  for (let n = 0; n < 16; n++) {
-    const [a, d] = $(n), p = new c.Mesh(v, t.peg);
-    p.position.set(a, O / 2, d), s.add(p), T.push(p);
-    const C = new c.Mesh(A, I);
-    C.position.copy(p.position), C.userData.peg = n, s.add(C), U.push(C);
+  const w = 16765952, u = (t, o = {}) => new a.MeshLambertMaterial({ color: t, flatShading: !1, ...o }), e = {
+    board: u(16777215),
+    peg: u(0),
+    pegHi: u(w, { emissive: w, emissiveIntensity: 0.4 }),
+    1: u(1118481),
+    2: u(16777215),
+    red: u(w, { emissive: w, emissiveIntensity: 0.4 }),
+    pale: u(16774048, { emissive: 16774048, emissiveIntensity: 0.4 }),
+    ghost1: u(0, { transparent: !0, opacity: 0.35, depthWrite: !1 }),
+    ghost2: u(16777215, { transparent: !0, opacity: 0.55, depthWrite: !1 })
+  }, y = new a.Mesh(new a.BoxGeometry(4.4 * O, 0.24, 4.4 * O), e.board);
+  y.position.y = -0.12, s.add(y);
+  const x = new a.Mesh(new a.BoxGeometry(4.4 * O, 0.1, 4.4 * O), u(0));
+  x.position.y = -0.29, s.add(x);
+  const S = new a.CylinderGeometry(0.05, 0.05, N, 24), k = new a.CylinderGeometry(0.45, 0.45, N + 0.3, 8), D = new a.MeshBasicMaterial({ visible: !1 }), z = [], Y = [];
+  for (let t = 0; t < 16; t++) {
+    const [o, c] = Z(t), h = new a.Mesh(S, e.peg);
+    h.position.set(o, N / 2, c), s.add(h), z.push(h);
+    const v = new a.Mesh(k, D);
+    v.position.copy(h.position), v.userData.peg = t, s.add(v), Y.push(v);
   }
-  const g = [], V = 0.38, R = 0.075, x = 0.23, E = 0.15;
-  g.push(new c.Vector2(R, -x + 0.03));
-  for (let n = 0; n <= 12; n++) {
-    const a = -Math.PI / 2 + Math.min(n, 6) / 6 * (Math.PI / 2) + Math.max(n - 6, 0) / 6 * (Math.PI / 2), d = n <= 6 ? -x + E : x - E;
-    g.push(new c.Vector2(V - E + E * Math.cos(a), d + E * Math.sin(a))), n === 6 && g.push(new c.Vector2(V, x - E));
+  const A = [], L = 0.38, G = 0.075, E = 0.23, I = 0.15;
+  A.push(new a.Vector2(G, -E + 0.03));
+  for (let t = 0; t <= 12; t++) {
+    const o = -Math.PI / 2 + Math.min(t, 6) / 6 * (Math.PI / 2) + Math.max(t - 6, 0) / 6 * (Math.PI / 2), c = t <= 6 ? -E + I : E - I;
+    A.push(new a.Vector2(L - I + I * Math.cos(o), c + I * Math.sin(o))), t === 6 && A.push(new a.Vector2(L, E - I));
   }
-  g.push(new c.Vector2(R, x - 0.03)), g.push(new c.Vector2(R, -x + 0.03));
-  const D = new c.LatheGeometry(g, 48);
-  D.computeVertexNormals();
-  const m = /* @__PURE__ */ new Map(), b = [], M = new c.Mesh(D, t.ghost1);
-  M.visible = !1, s.add(M);
-  let B = null;
-  const y = new gn(l, f.domElement);
-  y.target.copy(Mn), y.enableDamping = !0, y.enablePan = !1, y.minDistance = 5, y.maxDistance = 20, y.maxPolarAngle = Math.PI / 2 - 0.08, y.update();
-  let L = null;
-  function X(n) {
-    L = { from: l.position.clone(), to: n, t: 0 };
+  A.push(new a.Vector2(G, E - 0.03)), A.push(new a.Vector2(G, -E + 0.03));
+  const U = new a.LatheGeometry(A, 48);
+  U.computeVertexNormals();
+  const C = /* @__PURE__ */ new Map(), g = [], b = new a.Mesh(U, e.ghost1);
+  b.visible = !1, s.add(b);
+  let T = null;
+  const p = new Tt(i, f.domElement);
+  p.target.copy(Ut), p.enableDamping = !0, p.enablePan = !1, p.minDistance = 5, p.maxDistance = 20, p.maxPolarAngle = Math.PI / 2 - 0.08, p.update();
+  let M = null;
+  function V(t) {
+    M = { from: i.position.clone(), to: t, t: 0 };
   }
-  function q() {
-    const n = e.clientWidth || 1, a = e.clientHeight || 1;
-    f.setSize(n, a, !1), l.aspect = n / a, l.updateProjectionMatrix();
+  function tt() {
+    const t = n.clientWidth || 1, o = n.clientHeight || 1;
+    f.setSize(t, o, !1), i.aspect = t / o, i.updateProjectionMatrix();
   }
-  const J = new ResizeObserver(q);
-  J.observe(e), q();
-  const K = new c.Raycaster(), Z = new c.Vector2();
-  function Q(n) {
-    const a = f.domElement.getBoundingClientRect();
-    Z.set((n.clientX - a.left) / a.width * 2 - 1, -((n.clientY - a.top) / a.height) * 2 + 1), K.setFromCamera(Z, l);
-    const d = K.intersectObjects(U)[0];
-    return d ? d.object.userData.peg : null;
+  const et = new ResizeObserver(tt);
+  et.observe(n), tt();
+  const nt = new a.Raycaster(), ot = new a.Vector2();
+  function rt(t) {
+    const o = f.domElement.getBoundingClientRect();
+    ot.set((t.clientX - o.left) / o.width * 2 - 1, -((t.clientY - o.top) / o.height) * 2 + 1), nt.setFromCamera(ot, i);
+    const c = nt.intersectObjects(Y)[0];
+    return c ? c.object.userData.peg : null;
   }
-  let P = null, z = null;
-  const H = f.domElement;
-  H.addEventListener("pointerdown", (n) => {
-    P = { x: n.clientX, y: n.clientY, moved: !1 };
-  }), H.addEventListener("pointermove", (n) => {
-    if (P && Math.hypot(n.clientX - P.x, n.clientY - P.y) > 5 && (P.moved = !0), P) return;
-    const a = Q(n);
-    a !== z && (z = a, u(a));
-  }), H.addEventListener("pointerup", (n) => {
-    const a = P;
-    if (P = null, a && !a.moved) {
-      const d = Q(n);
-      d !== null && i(d);
+  let P = null, _ = null;
+  const B = f.domElement;
+  B.addEventListener("pointerdown", (t) => {
+    P = { x: t.clientX, y: t.clientY, moved: !1 }, t.pointerType === "touch" && kt(t);
+  }), B.addEventListener("pointermove", (t) => {
+    if (t.pointerType === "touch" && Lt(t), P && Math.hypot(t.clientX - P.x, t.clientY - P.y) > 5 && (P.moved = !0), P) return;
+    const o = rt(t);
+    o !== _ && (_ = o, d(o));
+  }), B.addEventListener("pointerup", (t) => {
+    t.pointerType === "touch" && st(t);
+    const o = P;
+    if (P = null, o && !o.moved) {
+      const c = rt(t);
+      c !== null && l(c);
     }
-  }), H.addEventListener("pointerleave", () => {
-    z !== null && (z = null, u(null));
+  }), B.addEventListener("pointercancel", (t) => {
+    t.pointerType === "touch" && st(t), P = null;
+  }), B.addEventListener("pointerleave", () => {
+    _ !== null && (_ = null, d(null));
   });
-  let N = [];
-  const nn = new c.Clock();
+  const gt = 2, yt = 90, bt = 0.5, vt = 30, Mt = 30, H = /* @__PURE__ */ new Set();
+  let m = null, $ = !1, j = 0;
+  function xt() {
+    for (let t = n.parentElement; t && t !== document.body; t = t.parentElement) {
+      const o = getComputedStyle(t).overflowY;
+      if ((o === "auto" || o === "scroll" || o === "overlay") && t.scrollHeight > t.clientHeight) return t;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+  function kt(t) {
+    cancelAnimationFrame(j), H.add(t.pointerId), H.size === 1 ? m = {
+      x: t.clientX,
+      y: t.clientY,
+      lastY: t.clientY,
+      t: t.timeStamp,
+      vy: 0,
+      mode: null,
+      camera: M ? M.to.clone() : i.position.clone(),
+      target: xt()
+    } : m && !m.mode && (m.mode = "rotate");
+  }
+  function Lt(t) {
+    if (!m || !H.has(t.pointerId)) return;
+    const o = Math.max(1, t.timeStamp - m.t), c = t.clientY - m.lastY;
+    if (m.vy = 0.7 * (c / o) + 0.3 * m.vy, m.lastY = t.clientY, m.t = t.timeStamp, m.mode === "scroll") {
+      m.target.scrollTop -= c;
+      return;
+    }
+    if (m.mode) return;
+    const h = Math.abs(t.clientX - m.x), v = Math.abs(t.clientY - m.y);
+    if (h > Mt) {
+      m.mode = "rotate";
+      return;
+    }
+    v < gt * h || (v > yt || v > vt && Math.abs(m.vy) > bt) && (m.mode = "scroll", $ = !0, p.enabled = !1, V(m.camera), m.target.scrollTop -= t.clientY - m.y);
+  }
+  function st(t) {
+    H.delete(t.pointerId), !(H.size || !m) && (m.mode === "scroll" && At(m.target, m.vy), m = null, $ = !1);
+  }
+  function At(t, o) {
+    let c = performance.now();
+    const h = (v) => {
+      const F = v - c;
+      c = v, t.scrollTop -= o * F, o *= Math.pow(0.95, F / 16), Math.abs(o) > 0.02 && (j = requestAnimationFrame(h));
+    };
+    j = requestAnimationFrame(h);
+  }
+  let X = [];
+  const it = new a.Clock();
   return f.setAnimationLoop(() => {
-    const n = Math.min(nn.getDelta(), 0.1);
-    if (L) {
-      L.t = Math.min(1, L.t + n / 0.6);
-      const d = 1 - Math.pow(1 - L.t, 3);
-      l.position.lerpVectors(L.from, L.to, d), l.lookAt(y.target), L.t >= 1 && (L = null);
+    const t = Math.min(it.getDelta(), 0.1);
+    if (M) {
+      M.t = Math.min(1, M.t + t / 0.6);
+      const c = 1 - Math.pow(1 - M.t, 3);
+      i.position.lerpVectors(M.from, M.to, c), i.lookAt(p.target), M.t >= 1 && (M = null);
     }
-    y.enabled = !L, L || y.update();
-    for (let d = b.length - 1; d >= 0; d--) {
-      const p = b[d];
-      p.t = Math.min(1, p.t + n / 0.35), p.mesh.position.y = p.from + (p.to - p.from) * p.t * p.t, p.t >= 1 && b.splice(d, 1);
+    p.enabled = !M && !$, M || p.update();
+    for (let c = g.length - 1; c >= 0; c--) {
+      const h = g[c];
+      h.t = Math.min(1, h.t + t / 0.35), h.mesh.position.y = h.from + (h.to - h.from) * h.t * h.t, h.t >= 1 && g.splice(c, 1);
     }
-    const a = Math.floor(nn.elapsedTime * 3) % 2 === 0;
-    for (const d of N) d.material = a ? d.userData.mat === t[2] ? t.pale : t.red : d.userData.mat;
-    f.render(s, l);
+    const o = Math.floor(it.elapsedTime * 3) % 2 === 0;
+    for (const c of X) c.material = o ? c.userData.mat === e[2] ? e.pale : e.red : c.userData.mat;
+    f.render(s, i);
   }), {
-    setBead(n, a, d = !0) {
-      const p = n % 16, C = Math.floor(n / 16), [dn, hn] = $(p);
-      m.has(n) && s.remove(m.get(n));
-      const W = new c.Mesh(D, t[a]);
-      W.userData.mat = t[a], W.position.set(dn, Y(C), hn), s.add(W), m.set(n, W), d && (W.position.y = O + 1, b.push({ mesh: W, from: O + 1, to: Y(C), t: 0 }));
+    setBead(t, o, c = !0) {
+      const h = t % 16, v = Math.floor(t / 16), [F, Et] = Z(h);
+      C.has(t) && s.remove(C.get(t));
+      const W = new a.Mesh(U, e[o]);
+      W.userData.mat = e[o], W.position.set(F, K(v), Et), s.add(W), C.set(t, W), c && (W.position.y = N + 1, g.push({ mesh: W, from: N + 1, to: K(v), t: 0 }));
     },
     clearBeads() {
-      for (const n of m.values()) s.remove(n);
-      m.clear(), b.length = 0, N = [];
+      for (const t of C.values()) s.remove(t);
+      C.clear(), g.length = 0, X = [];
     },
-    setGhost(n, a, d) {
-      if (B !== null && (T[B].material = t.peg), B = n, n == null || a > 3) {
-        M.visible = !1, B = null;
+    setGhost(t, o, c) {
+      if (T !== null && (z[T].material = e.peg), T = t, t == null || o > 3) {
+        b.visible = !1, T = null;
         return;
       }
-      T[n].material = t.pegHi;
-      const [p, C] = $(n);
-      M.material = d === 2 ? t.ghost2 : t.ghost1, M.position.set(p, Y(a), C), M.visible = !0;
+      z[t].material = e.pegHi;
+      const [h, v] = Z(t);
+      b.material = c === 2 ? e.ghost2 : e.ghost1, b.position.set(h, K(o), v), b.visible = !0;
     },
-    flash(n) {
-      N = n.map((a) => m.get(a)).filter(Boolean);
+    flash(t) {
+      X = t.map((o) => C.get(o)).filter(Boolean);
     },
     topView() {
-      const n = l.position.distanceTo(y.target);
-      X(y.target.clone().add(new c.Vector3(0, n, 0.01)));
+      const t = i.position.distanceTo(p.target);
+      V(p.target.clone().add(new a.Vector3(0, t, 0.01)));
     },
     resetCamera() {
-      X(tn.clone());
+      V(at.clone());
+    },
+    // smooth zoom step: factor < 1 moves closer; clamped to the controls' distance limits
+    zoomBy(t) {
+      const o = (M ? M.to : i.position).clone().sub(p.target);
+      o.setLength(a.MathUtils.clamp(o.length() * t, p.minDistance, p.maxDistance)), V(p.target.clone().add(o));
+    },
+    getDistance() {
+      return i.position.distanceTo(p.target);
     },
     // stop rendering and free everything (GPU resources, observers, canvas)
     destroy() {
-      f.setAnimationLoop(null), J.disconnect(), y.dispose(), s.traverse((n) => {
-        n.geometry && n.geometry.dispose();
+      f.setAnimationLoop(null), cancelAnimationFrame(j), et.disconnect(), p.dispose(), s.traverse((t) => {
+        t.geometry && t.geometry.dispose();
       });
-      for (const n of [...Object.values(t), I, k.material]) n.dispose();
-      f.dispose(), f.forceContextLoss(), H.remove();
+      for (const t of [...Object.values(e), D, x.material]) t.dispose();
+      f.dispose(), f.forceContextLoss(), B.remove();
     }
   };
 }
-const S = 24, _ = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), on = "#000", xn = "#fff", rn = "#ffd400", Ln = "#1d3fd6";
-function An(e, { onPegClick: i = () => {
+const R = 24, J = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), ct = "#000", Bt = "#fff", ft = "#ffd400", Wt = "#1d3fd6";
+function Ot(n, { onPegClick: l = () => {
 } } = {}) {
-  const u = [];
-  e.innerHTML = "";
+  const d = [];
+  n.innerHTML = "";
   for (let s = 0; s < 4; s++) {
-    const l = document.createElement("div");
-    l.className = "layer", l.textContent = `Layer ${s + 1}${s === 0 ? " (bottom)" : s === 3 ? " (top)" : ""}`;
+    const i = document.createElement("div");
+    i.className = "layer", i.textContent = `Layer ${s + 1}`;
     const r = document.createElement("canvas");
-    r.width = r.height = S * 4 * _, r.style.display = "block", r.style.cursor = "pointer", r.addEventListener("click", (h) => {
-      const o = r.getBoundingClientRect(), t = Math.floor((h.clientX - o.left) / o.width * 4), w = Math.floor((h.clientY - o.top) / o.height * 4);
-      t >= 0 && t < 4 && w >= 0 && w < 4 && i(t + 4 * w);
-    }), l.appendChild(r), e.prepend(l), u[s] = r;
+    r.width = r.height = R * 4 * J, r.style.display = "block", r.style.cursor = "pointer", r.addEventListener("click", (w) => {
+      const u = r.getBoundingClientRect(), e = Math.floor((w.clientX - u.left) / u.width * 4), y = Math.floor((w.clientY - u.top) / u.height * 4);
+      e >= 0 && e < 4 && y >= 0 && y < 4 && l(e + 4 * y);
+    }), i.appendChild(r), n.appendChild(i), d[s] = r;
   }
-  function f(s, l = null) {
+  function f(s, i = null) {
     const r = new Set(s.winLine || []);
-    let h = -1;
-    l !== null && !s.winner && !s.draw && s.heights[l] < 4 && (h = l + 16 * s.heights[l]);
-    for (let o = 0; o < 4; o++) {
-      const t = u[o].getContext("2d");
-      t.setTransform(_, 0, 0, _, 0, 0), t.fillStyle = Ln, t.fillRect(0, 0, S * 4, S * 4);
-      for (let w = 0; w < 16; w++) {
-        const k = w + 16 * o, v = (w % 4 + 0.5) * S, A = (Math.floor(w / 4) + 0.5) * S, I = s.cells[k];
-        t.setLineDash([]), t.beginPath(), t.arc(v, A, S * 0.36, 0, Math.PI * 2), I ? (t.fillStyle = I === 1 ? on : xn, t.fill(), t.strokeStyle = on, t.lineWidth = 1, t.stroke()) : (t.fillStyle = "rgba(255,255,255,0.55)", t.beginPath(), t.arc(v, A, 1.5, 0, Math.PI * 2), t.fill()), k === h && (t.beginPath(), t.arc(v, A, S * 0.36, 0, Math.PI * 2), t.setLineDash([3, 3]), t.strokeStyle = rn, t.lineWidth = 1.5, t.stroke()), r.has(k) && (t.setLineDash([]), t.beginPath(), t.arc(v, A, S * 0.44, 0, Math.PI * 2), t.strokeStyle = rn, t.lineWidth = 2, t.stroke());
+    let w = -1;
+    i !== null && !s.winner && !s.draw && s.heights[i] < 4 && (w = i + 16 * s.heights[i]);
+    for (let u = 0; u < 4; u++) {
+      const e = d[u].getContext("2d");
+      e.setTransform(J, 0, 0, J, 0, 0), e.fillStyle = Wt, e.fillRect(0, 0, R * 4, R * 4);
+      for (let y = 0; y < 16; y++) {
+        const x = y + 16 * u, S = (y % 4 + 0.5) * R, k = (Math.floor(y / 4) + 0.5) * R, D = s.cells[x];
+        e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), D ? (e.fillStyle = D === 1 ? ct : Bt, e.fill(), e.strokeStyle = ct, e.lineWidth = 1, e.stroke()) : (e.fillStyle = "rgba(255,255,255,0.55)", e.beginPath(), e.arc(S, k, 1.5, 0, Math.PI * 2), e.fill()), x === w && (e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), e.setLineDash([3, 3]), e.strokeStyle = ft, e.lineWidth = 1.5, e.stroke()), r.has(x) && (e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.44, 0, Math.PI * 2), e.strokeStyle = ft, e.lineWidth = 2, e.stroke());
       }
     }
   }
   return { render: f };
 }
-const un = `function ct(e, t, o) {
+const wt = `function ct(e, t, o) {
   return e + 4 * t + 16 * o;
 }
 const z = (e) => e >= 0 && e < 4, W = (() => {
@@ -377,42 +435,51 @@ self.onmessage = (e) => {
   const { id: t, state: o, level: i } = e.data;
   self.postMessage({ id: t, peg: yt(o, Z[i] || Z.medium) });
 };
-`, sn = typeof self < "u" && self.Blob && new Blob(["URL.revokeObjectURL(import.meta.url);", un], { type: "text/javascript;charset=utf-8" });
-function En(e) {
-  let i;
+`, ut = typeof self < "u" && self.Blob && new Blob(["URL.revokeObjectURL(import.meta.url);", wt], { type: "text/javascript;charset=utf-8" });
+function Yt(n) {
+  let l;
   try {
-    if (i = sn && (self.URL || self.webkitURL).createObjectURL(sn), !i) throw "";
-    const u = new Worker(i, {
+    if (l = ut && (self.URL || self.webkitURL).createObjectURL(ut), !l) throw "";
+    const d = new Worker(l, {
       type: "module",
-      name: e?.name
+      name: n?.name
     });
-    return u.addEventListener("error", () => {
-      (self.URL || self.webkitURL).revokeObjectURL(i);
-    }), u;
+    return d.addEventListener("error", () => {
+      (self.URL || self.webkitURL).revokeObjectURL(l);
+    }), d;
   } catch {
     return new Worker(
-      "data:text/javascript;charset=utf-8," + encodeURIComponent(un),
+      "data:text/javascript;charset=utf-8," + encodeURIComponent(wt),
       {
         type: "module",
-        name: e?.name
+        name: n?.name
       }
     );
   }
 }
-function Cn() {
-  return new En();
+function Gt() {
+  return new Yt();
 }
-const F = { 1: "Black", 2: "White" }, In = `
+const Q = { 1: "Black", 2: "White" };
+let Ht = 0;
+const Nt = `
 <header class="sf-header">
   <h1 class="sf-wordmark">Score Four</h1>
   <div class="sf-status" role="status" aria-live="polite"></div>
 </header>
 <div class="sf-main">
   <section class="sf-view-wrap">
-    <div class="sf-view"></div>
+    <div class="sf-view">
+      <div class="sf-zoom" role="group" aria-label="Zoom">
+        <button type="button" class="sf-btn-zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" class="sf-btn-zoom-out" aria-label="Zoom out">−</button>
+      </div>
+    </div>
     <p class="sf-hint">Drag to rotate · scroll or pinch to zoom</p>
   </section>
   <aside class="sf-panel">
+    <button type="button" class="sf-panel-toggle" aria-expanded="false">Settings<span class="sf-caret" aria-hidden="true"></span></button>
+    <div class="sf-panel-body">
     <div class="sf-minimap"></div>
     <div class="sf-buttons">
       <button type="button" class="sf-btn-top">Top view</button>
@@ -424,65 +491,71 @@ const F = { 1: "Black", 2: "White" }, In = `
       <label>First <select class="sf-first"><option value="human">Human</option><option value="cpu">Computer</option></select></label>
     </div>
     <div class="sf-score"></div>
+    </div>
   </aside>
 </div>`;
-function Rn(e, i = {}) {
-  const { opponent: u = "2p", first: f = "human", showTitle: s = !0, createWorker: l = Cn } = i;
-  e.classList.add("score-four"), e.innerHTML = In;
-  const r = (m) => e.querySelector(`.sf-${m}`);
-  s || r("wordmark").remove(), r("mode").value = u, r("first").value = f;
-  const h = { 1: 0, 2: 0 };
-  let o = en(), t = null, w = !1, k = 0, v = !1;
-  const A = l();
-  A.onmessage = (m) => {
-    v || m.data.id !== k || (w = !1, x(m.data.peg, !0));
+function Vt(n, l = {}) {
+  const { opponent: d = "2p", first: f = "human", showTitle: s = !0, createWorker: i = Gt } = l;
+  n.classList.add("score-four"), n.innerHTML = Nt;
+  const r = (g) => n.querySelector(`.sf-${g}`);
+  s || r("wordmark").remove();
+  const w = `sf-panel-body-${++Ht}`;
+  r("panel-body").id = w, r("panel-toggle").setAttribute("aria-controls", w), r("mode").value = d, r("first").value = f;
+  const u = { 1: 0, 2: 0 };
+  let e = lt(), y = null, x = !1, S = 0, k = !1;
+  const D = i();
+  D.onmessage = (g) => {
+    k || g.data.id !== S || (x = !1, I(g.data.peg, !0));
   };
-  const I = () => r("mode").value === "cpu", T = () => r("first").value === "cpu" ? 1 : 2, U = () => I() && !o.winner && !o.draw && o.turn === T(), g = kn(r("view"), {
-    onPegClick: x,
-    onPegHover(m) {
-      t = m, R();
+  const z = () => r("mode").value === "cpu", Y = () => r("first").value === "cpu" ? 1 : 2, A = () => z() && !e.winner && !e.draw && e.turn === Y(), L = zt(r("view"), {
+    onPegClick: I,
+    onPegHover(g) {
+      y = g, E();
     }
-  }), V = An(r("minimap"), { onPegClick: x });
-  function R() {
-    const m = o.winner || o.draw, b = t !== null && !m && !U() && o.heights[t] < 4;
-    g.setGhost(b ? t : null, b ? o.heights[t] : 0, o.turn), V.render(o, t);
-    const M = I();
-    r("first").disabled = !M, r("status").textContent = o.winner ? M ? o.winner === T() ? "Computer wins!" : "You win!" : `${F[o.winner]} wins!` : o.draw ? "Draw" : U() ? "Computer is thinking…" : M ? `Your turn (${F[o.turn].toLowerCase()})` : `${F[o.turn]}'s turn`, r("score").textContent = `Black ${h[1]} · White ${h[2]}`;
-  }
-  function x(m, b = !1) {
-    if (v || !b && (w || U()) || !an(o, m)) return !1;
-    const M = o.turn, B = bn(o, m);
-    return B < 0 ? !1 : (g.setBead(B, M), o.winner && (h[o.winner]++, g.flash(o.winLine)), R(), E(), !0);
-  }
+  }), G = Ot(r("minimap"), { onPegClick: I });
   function E() {
-    if (!U()) return;
-    w = !0;
-    const m = ++k, b = JSON.parse(JSON.stringify(o));
-    A.postMessage({ id: m, state: b, level: "hard" });
+    const g = e.winner || e.draw, b = y !== null && !g && !A() && e.heights[y] < 4;
+    L.setGhost(b ? y : null, b ? e.heights[y] : 0, e.turn), G.render(e, y);
+    const T = z();
+    r("first").disabled = !T, r("status").textContent = e.winner ? T ? e.winner === Y() ? "Computer wins!" : "You win!" : `${Q[e.winner]} wins!` : e.draw ? "Draw" : A() ? "Computer is thinking…" : T ? `Your turn (${Q[e.turn].toLowerCase()})` : `${Q[e.turn]}'s turn`, r("score").textContent = `Black ${u[1]} · White ${u[2]}`;
   }
-  function D() {
-    v || (k++, w = !1, o = en(), g.clearBeads(), R(), E());
+  function I(g, b = !1) {
+    if (k || !b && (x || A()) || !mt(e, g)) return !1;
+    const T = e.turn, p = Rt(e, g);
+    return p < 0 ? !1 : (L.setBead(p, T), e.winner && (u[e.winner]++, L.flash(e.winLine)), E(), U(), !0);
   }
-  return r("btn-top").onclick = () => g.topView(), r("btn-reset").onclick = () => g.resetCamera(), r("btn-new").onclick = D, r("mode").onchange = D, r("first").onchange = D, R(), E(), {
+  function U() {
+    if (!A()) return;
+    x = !0;
+    const g = ++S, b = JSON.parse(JSON.stringify(e));
+    D.postMessage({ id: g, state: b, level: "hard" });
+  }
+  function C() {
+    k || (S++, x = !1, e = lt(), L.clearBeads(), E(), U());
+  }
+  return r("btn-top").onclick = () => L.topView(), r("btn-reset").onclick = () => L.resetCamera(), r("btn-new").onclick = C, r("btn-zoom-in").onclick = () => L.zoomBy(0.8), r("btn-zoom-out").onclick = () => L.zoomBy(1.25), r("panel-toggle").onclick = (g) => {
+    const b = g.currentTarget;
+    b.setAttribute("aria-expanded", String(b.getAttribute("aria-expanded") !== "true"));
+  }, r("mode").onchange = C, r("first").onchange = C, E(), U(), {
     get game() {
-      return o;
+      return e;
     },
-    play: x,
-    newGame: D,
+    play: I,
+    newGame: C,
     destroy() {
-      v || (v = !0, A.terminate(), g.destroy(), e.innerHTML = "", e.classList.remove("score-four"));
+      k || (k = !0, D.terminate(), L.destroy(), n.innerHTML = "", n.classList.remove("score-four"));
     }
   };
 }
-function Sn({ className: e, style: i, opponent: u, first: f, showTitle: s, onReady: l }) {
-  const r = mn(null);
-  return pn(() => {
-    const h = Rn(r.current, { opponent: u, first: f, showTitle: s });
-    return l?.(h), () => h.destroy();
-  }, [u, f, s]), wn("div", { className: e, style: i, ref: r });
+function Ft({ className: n, style: l, opponent: d, first: f, showTitle: s, onReady: i }) {
+  const r = It(null);
+  return Ct(() => {
+    const w = Vt(r.current, { opponent: d, first: f, showTitle: s });
+    return i?.(w), () => w.destroy();
+  }, [d, f, s]), St("div", { className: n, style: l, ref: r });
 }
 export {
-  Sn as ScoreFour,
-  Sn as default,
-  Rn as mount
+  Ft as ScoreFour,
+  Ft as default,
+  Vt as mount
 };

@@ -23,12 +23,19 @@ All elements use `sf-` classes (no ids, so several boards can coexist) under a r
 - Top bar: `.sf-status` (e.g. "White's turn", "Black wins!", "Draw", "Computer is thinking…").
 - Left/main: `.sf-view` — container for the 3D canvas. Hint text "Drag to rotate · scroll or pinch to zoom".
 - Right panel:
-  - `.sf-minimap` — four 4×4 grids, one per layer (1 = bottom … 4 = top), seen from above.
+  - `.sf-minimap` — four 4×4 grids labelled "Layer 1" … "Layer 4" (1 = bottom, listed first), seen from above.
   - Buttons `.sf-btn-top` (top-down view), `.sf-btn-reset` (reset camera), `.sf-btn-new` (new game).
   - Setup: `.sf-mode` select labelled Opponent (`2p` = Human, `cpu` = Computer); the computer always searches at the `hard` level; no level select.
     `.sf-first` select (`human`, `cpu` — who plays first vs computer; disabled when the opponent is Human).
   - `.sf-score` text: "Black 0 · White 0".
-- When the root is narrower than 700px (container query, not viewport) the panel stacks under the view.
+- Zoom buttons `.sf-btn-zoom-in` / `.sf-btn-zoom-out` overlay the view's bottom-right corner; shown only
+  when the device has a fine pointer (`any-pointer: fine`), hidden on touch-only devices (pinch instead).
+- When the root is narrower than 700px (container query, not viewport) the panel stacks under the view,
+  and its contents (`.sf-panel-body`) collapse behind a `.sf-panel-toggle` button labelled "Settings"
+  (`aria-expanded`, closed at start, caret on the right flips). In the wide layout the toggle is hidden.
+- Touch on the board: small drags rotate, pinch zooms; a one-finger swipe that is mostly vertical
+  (|dy| ≥ 2|dx|, under 30px sideways) and long (> 90px) or fast (> 0.5 px/ms after 30px) scrolls the
+  nearest scrollable ancestor instead (with momentum) and eases the camera back to where it started.
 
 ## Coordinates (shared by every file)
 - Peg `(x, y)`, each 0–3. Peg index `peg = x + 4*y` (0–15).
@@ -69,6 +76,8 @@ export function createScene(container, { onPegClick(peg), onPegHover(peg | null)
 //   flash(cells)                           // blink the winning beads until clearBeads()
 //   topView()                              // smooth move to looking straight down
 //   resetCamera()
+//   zoomBy(factor)                         // smooth zoom step (<1 = closer), clamped to min/max distance
+//   getDistance()                          // camera distance to the target
 //   destroy()                              // stop loop, dispose GPU resources, remove canvas
 ```
 `import 'three'` / `'three/addons/...'`: standalone page resolves them with an import map in index.html:

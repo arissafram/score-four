@@ -6,6 +6,7 @@ import { createMinimap } from './minimap.js';
 import defaultWorker from './default-worker.js';
 
 const NAME = { 1: 'Black', 2: 'White' };
+let mounts = 0; // unique ids per board, for aria-controls
 
 const TEMPLATE = `
 <header class="sf-header">
@@ -14,10 +15,17 @@ const TEMPLATE = `
 </header>
 <div class="sf-main">
   <section class="sf-view-wrap">
-    <div class="sf-view"></div>
+    <div class="sf-view">
+      <div class="sf-zoom" role="group" aria-label="Zoom">
+        <button type="button" class="sf-btn-zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" class="sf-btn-zoom-out" aria-label="Zoom out">−</button>
+      </div>
+    </div>
     <p class="sf-hint">Drag to rotate · scroll or pinch to zoom</p>
   </section>
   <aside class="sf-panel">
+    <button type="button" class="sf-panel-toggle" aria-expanded="false">Settings<span class="sf-caret" aria-hidden="true"></span></button>
+    <div class="sf-panel-body">
     <div class="sf-minimap"></div>
     <div class="sf-buttons">
       <button type="button" class="sf-btn-top">Top view</button>
@@ -29,6 +37,7 @@ const TEMPLATE = `
       <label>First <select class="sf-first"><option value="human">Human</option><option value="cpu">Computer</option></select></label>
     </div>
     <div class="sf-score"></div>
+    </div>
   </aside>
 </div>`;
 
@@ -42,6 +51,9 @@ export function mount(root, options = {}) {
   root.innerHTML = TEMPLATE;
   const $ = (name) => root.querySelector(`.sf-${name}`);
   if (!showTitle) $('wordmark').remove();
+  const bodyId = `sf-panel-body-${++mounts}`;
+  $('panel-body').id = bodyId;
+  $('panel-toggle').setAttribute('aria-controls', bodyId);
   $('mode').value = opponent;
   $('first').value = first;
 
@@ -125,6 +137,13 @@ export function mount(root, options = {}) {
   $('btn-top').onclick = () => scene.topView();
   $('btn-reset').onclick = () => scene.resetCamera();
   $('btn-new').onclick = newGame;
+  $('btn-zoom-in').onclick = () => scene.zoomBy(0.8);
+  $('btn-zoom-out').onclick = () => scene.zoomBy(1.25);
+  // stacked layout only (the toggle is hidden when the panel sits beside the board)
+  $('panel-toggle').onclick = (e) => {
+    const t = e.currentTarget;
+    t.setAttribute('aria-expanded', String(t.getAttribute('aria-expanded') !== 'true'));
+  };
   $('mode').onchange = newGame;
   $('first').onchange = newGame;
   refresh();
