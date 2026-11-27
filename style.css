@@ -1,74 +1,77 @@
-:root {
-  --ink: #000;
-  --paper: #fff;
-  --field: #1d3fd6;   /* the game's one colour block */
-  --hot: #ffd400;     /* highlight / win */
-}
-* { box-sizing: border-box; }
-html, body {
-  margin: 0; height: 100%;
+/* Score Four — every rule is scoped under .score-four so it can't leak into a host page.
+   The root fills its container's height (min 520px); give the container a height to size it. */
+.score-four {
+  --sf-ink: #000;
+  --sf-paper: #fff;
+  --sf-field: #1d3fd6;   /* the game's one colour block */
+  --sf-hot: #ffd400;     /* highlight / win */
+  container-type: inline-size;
+  display: flex; flex-direction: column;
+  height: 100%; min-height: 520px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: var(--paper); color: var(--ink);
+  background: var(--sf-paper); color: var(--sf-ink);
+  text-align: left; line-height: normal;
 }
-body { display: flex; flex-direction: column; }
+.score-four *, .score-four *::before, .score-four *::after { box-sizing: border-box; }
 
-header {
+.score-four .sf-header {
   display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-  padding: 20px 24px 14px; border-bottom: 1px solid var(--ink);
+  padding: 20px 24px 14px; border-bottom: 1px solid var(--sf-ink);
 }
-.wordmark { margin: 0; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.045em; line-height: 0.9; }
-#status { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.score-four .sf-wordmark { margin: 0; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.045em; line-height: 0.9; }
+.score-four .sf-status { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
 
-main { flex: 1; display: flex; min-height: 0; }
-#view-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--field); color: var(--paper); }
-#view { flex: 1; position: relative; min-height: 300px; }
-#view canvas {
+.score-four .sf-main { flex: 1; display: flex; min-height: 0; }
+.score-four .sf-view-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--sf-field); color: var(--sf-paper); }
+.score-four .sf-view { flex: 1; position: relative; min-height: 300px; }
+.score-four .sf-view canvas {
   position: absolute; inset: 0; width: 100%; height: 100%;
   touch-action: none; display: block;
 }
-.hint { margin: 0; padding: 10px 24px 14px; font-size: 0.75rem; }
+.score-four .sf-hint { margin: 0; padding: 10px 24px 14px; font-size: 0.75rem; }
 
-#panel {
+.score-four .sf-panel {
   width: 280px; padding: 0; display: flex; flex-direction: column;
-  border-left: 1px solid var(--ink); overflow-y: auto;
+  border-left: 1px solid var(--sf-ink); overflow-y: auto;
 }
-#panel > * { padding: 16px 24px; border-bottom: 1px solid var(--ink); }
+.score-four .sf-panel > * { padding: 16px 24px; border-bottom: 1px solid var(--sf-ink); }
 
-#minimap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
-#minimap .layer { font-size: 0.7rem; font-weight: 700; letter-spacing: -0.01em; }
-#minimap canvas { width: 100%; height: auto; margin-top: 4px; }
+.score-four .sf-minimap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
+.score-four .sf-minimap .layer { font-size: 0.7rem; font-weight: 700; letter-spacing: -0.01em; }
+.score-four .sf-minimap canvas { width: 100%; height: auto; margin-top: 4px; }
 
-.buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-button {
-  font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--ink);
-  background: var(--paper); border: 1px solid var(--ink); border-radius: 0;
-  padding: 9px 10px; text-align: left; cursor: pointer;
+.score-four .sf-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.score-four button {
+  font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--sf-ink);
+  background: var(--sf-paper); border: 1px solid var(--sf-ink); border-radius: 0;
+  padding: 9px 10px; text-align: left; cursor: pointer; margin: 0;
 }
-button:hover { background: var(--ink); color: var(--paper); }
-#btn-new { grid-column: 1 / -1; background: var(--ink); color: var(--paper); }
-#btn-new:hover { background: var(--field); border-color: var(--field); }
-button:focus-visible, select:focus-visible { outline: 2px solid var(--field); outline-offset: 1px; }
+.score-four button:hover { background: var(--sf-ink); color: var(--sf-paper); }
+.score-four .sf-btn-new { grid-column: 1 / -1; background: var(--sf-ink); color: var(--sf-paper); }
+.score-four .sf-btn-new:hover { background: var(--sf-field); border-color: var(--sf-field); }
+.score-four button:focus-visible, .score-four select:focus-visible { outline: 2px solid var(--sf-field); outline-offset: 1px; }
 
-.settings { display: flex; flex-direction: column; gap: 8px; }
-label { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.8rem; }
-select {
-  font: inherit; font-size: 0.8rem; color: var(--ink);
-  appearance: none; -webkit-appearance: none; border-radius: 0;
-  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z'/%3E%3C/svg%3E") no-repeat right 8px center;
-  border: 1px solid var(--ink); padding: 6px 24px 6px 8px; min-width: 130px; cursor: pointer;
+.score-four .sf-settings { display: flex; flex-direction: column; gap: 8px; }
+.score-four label { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.8rem; }
+.score-four select {
+  font: inherit; font-size: 0.8rem; color: var(--sf-ink);
+  appearance: none; -webkit-appearance: none; border-radius: 0; margin: 0;
+  background: var(--sf-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0h8L4 5z'/%3E%3C/svg%3E") no-repeat right 8px center;
+  border: 1px solid var(--sf-ink); padding: 6px 24px 6px 8px; min-width: 130px; cursor: pointer;
 }
-select:disabled { opacity: 0.35; cursor: default; }
+.score-four select:disabled { opacity: 0.35; cursor: default; }
 
-#score { margin-top: auto; border-bottom: 0 !important; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; }
+.score-four .sf-panel > .sf-score { margin-top: auto; border-bottom: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; }
 
-@media (max-width: 700px) {
-  header { padding: 16px; flex-direction: column; gap: 8px; }
-  .wordmark { font-size: 2rem; }
-  main { flex-direction: column; }
-  #view { min-height: 58vh; }
-  .hint { padding: 8px 16px 12px; }
-  #panel { width: auto; border-left: 0; overflow: visible; }
-  #panel > * { padding: 14px 16px; }
-  #minimap { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  #minimap .layer { font-size: 0.6rem; }
+/* narrow container (phone, or a narrow column on a host page): panel stacks under the view */
+@container (max-width: 700px) {
+  .score-four .sf-header { padding: 16px; flex-direction: column; gap: 8px; }
+  .score-four .sf-wordmark { font-size: 2rem; }
+  .score-four .sf-main { flex-direction: column; }
+  .score-four .sf-view { min-height: 58vh; }
+  .score-four .sf-hint { padding: 8px 16px 12px; }
+  .score-four .sf-panel { width: auto; border-left: 0; overflow: visible; }
+  .score-four .sf-panel > * { padding: 14px 16px; }
+  .score-four .sf-minimap { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .score-four .sf-minimap .layer { font-size: 0.6rem; }
 }

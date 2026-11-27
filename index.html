@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Score Four</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  html, body { margin: 0; height: 100%; }
+  #app { height: 100%; }
+</style>
+<!-- Standalone page only: no build step, so Three.js comes from a CDN. The npm package
+     instead declares `three` as a dependency and the host's bundler resolves it. -->
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -13,29 +19,7 @@
 </script>
 </head>
 <body>
-<header>
-  <h1 class="wordmark">Score Four</h1>
-  <div id="status">Black's turn</div>
-</header>
-<main>
-  <section id="view-wrap">
-    <div id="view"></div>
-    <p class="hint">Drag to rotate · scroll or pinch to zoom</p>
-  </section>
-  <aside id="panel">
-    <div id="minimap"></div>
-    <div class="buttons">
-      <button id="btn-top">Top view</button>
-      <button id="btn-reset">Reset camera</button>
-      <button id="btn-new">New game</button>
-    </div>
-    <div class="settings">
-    <label>Opponent <select id="mode"><option value="2p">Human</option><option value="cpu">Computer</option></select></label>
-    <label>First <select id="first"><option value="human">Human</option><option value="cpu">Computer</option></select></label>
-    </div>
-    <div id="score">Black 0 · White 0</div>
-  </aside>
-</main>
+<div id="app"></div>
 <script type="module" src="main.js"></script>
 </body>
 </html>

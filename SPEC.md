@@ -4,8 +4,12 @@ A browser game: 3D "connect four" on a 4×4 grid of 16 pegs, each peg holds up t
 Black and white alternate; a bead drops to the lowest free spot on the chosen peg. First to get 4 in a
 line (any straight or diagonal line through the cube, 76 lines total) wins. Full board, no line = draw.
 
-Fully frontend: static files, no build step, no npm dependencies. Three.js from a CDN via import map.
-Styling is NOT a priority yet: plain layout, default fonts. Keep files small and readable.
+Fully frontend ES modules. Two ways to run it:
+- **Standalone page** (`index.html`): static files, no build step; Three.js from a CDN via import map.
+- **Package** (`score-four`, installed like react-jigsaw as a GitHub dependency with a committed `dist/`):
+  React component `ScoreFour` and framework-free `mount(el, options)`, styles at `score-four/styles`.
+  See "Package" below.
+Keep files small and readable.
 
 ## Look
 - Real 3D scene (Three.js), rendered at a tiny internal resolution (~240px tall) and scaled up with
@@ -14,16 +18,17 @@ Styling is NOT a priority yet: plain layout, default fonts. Keep files small and
 - Thin pegs, beads slightly smaller than the peg spacing so you can see through the grid.
 - Drag to rotate (OrbitControls), scroll/pinch to zoom, camera can't go below the board.
 
-## Screen layout (index.html)
-- Top bar: `#status` (e.g. "White's turn", "Black wins!", "Draw", "Computer is thinking…").
-- Left/main: `#view` — container for the 3D canvas. Hint text "Drag to rotate · scroll or pinch to zoom".
+## Screen layout (built by `app.js` inside the mount root)
+All elements use `sf-` classes (no ids, so several boards can coexist) under a root with class `score-four`.
+- Top bar: `.sf-status` (e.g. "White's turn", "Black wins!", "Draw", "Computer is thinking…").
+- Left/main: `.sf-view` — container for the 3D canvas. Hint text "Drag to rotate · scroll or pinch to zoom".
 - Right panel:
-  - `#minimap` — four 4×4 grids, one per layer (1 = bottom … 4 = top), seen from above.
-  - Buttons `#btn-top` (top-down view), `#btn-reset` (reset camera), `#btn-new` (new game).
-  - Setup: `#mode` select labelled Opponent (`2p` = Human, `cpu` = Computer); the computer always searches at the `hard` level; no level select.
-    `#first` select (`human`, `cpu` — who plays first vs computer; disabled when the opponent is Human).
-  - `#score` text: "Black 0 · White 0".
-- On phones the right panel stacks under the view.
+  - `.sf-minimap` — four 4×4 grids, one per layer (1 = bottom … 4 = top), seen from above.
+  - Buttons `.sf-btn-top` (top-down view), `.sf-btn-reset` (reset camera), `.sf-btn-new` (new game).
+  - Setup: `.sf-mode` select labelled Opponent (`2p` = Human, `cpu` = Computer); the computer always searches at the `hard` level; no level select.
+    `.sf-first` select (`human`, `cpu` — who plays first vs computer; disabled when the opponent is Human).
+  - `.sf-score` text: "Black 0 · White 0".
+- When the root is narrower than 700px (container query, not viewport) the panel stacks under the view.
 
 ## Coordinates (shared by every file)
 - Peg `(x, y)`, each 0–3. Peg index `peg = x + 4*y` (0–15).
@@ -64,8 +69,9 @@ export function createScene(container, { onPegClick(peg), onPegHover(peg | null)
 //   flash(cells)                           // blink the winning beads until clearBeads()
 //   topView()                              // smooth move to looking straight down
 //   resetCamera()
+//   destroy()                              // stop loop, dispose GPU resources, remove canvas
 ```
-Three.js loaded with an import map in index.html:
+`import 'three'` / `'three/addons/...'`: standalone page resolves them with an import map in index.html:
 `three` -> `https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js`,
 `three/addons/` -> `https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/`.
 Clicking: invisible fat cylinder per peg as the raycast target. A drag (pointer moved > ~5px) is not a click.
@@ -76,7 +82,15 @@ export function createMinimap(container, { onPegClick(peg) })
 // -> api: render(state, ghostPeg | null)   // draws beads, ghost, and winLine highlight
 ```
 
-### `main.js` — wires everything: game + scene + minimap + buttons + status + score + computer player.
+### `app.js` — `mount(root, { opponent = '2p', first = 'human', showTitle = true, createWorker })`
+Builds the DOM in `root`, wires game + scene + minimap + buttons + status + score + computer player.
+Returns `{ game, play(peg), newGame(), destroy() }`; `destroy()` terminates the worker, disposes the scene
+and empties `root`.
+
+### `main.js` — standalone entry: `window.scoreFour = mount(document.getElementById('app'))`.
+
+### `react.js` — `<ScoreFour opponent first showTitle className style onReady />`, mounts in an effect,
+destroys on unmount (StrictMode-safe). `index.js` is the package entry (exports `ScoreFour`, default, `mount`).
 
 ### `ai.js` — computer player, pure (imports game.js only)
 ```js
@@ -95,13 +109,25 @@ under an opponent's winning cell). Bitboards (BigInt or two 32-bit ints) are wel
 
 ### `worker.js` — module Web Worker around ai.js
 Message in: `{ state, level }` (level is a LEVELS key). Message out: `{ peg }`.
-Created in main.js with `new Worker('./worker.js', { type: 'module' })`.
+Created by `default-worker.js` with `new Worker(new URL('./worker.js', import.meta.url), { type: 'module' })`.
+The library build aliases it to `default-worker.lib.js`, which inlines the bundled worker (`?worker&inline`)
+so host bundlers never have to locate a worker file inside node_modules.
 
 Tests: `test/ai.test.js` (`node --test`): takes an immediate win, blocks an immediate loss,
 hard beats easy in a short self-play match. Tests must finish in under ~60 s.
 
+## Package
+- `npm run build` (Vite library mode, `vite.config.js`) -> `dist/index.esm.js`, `dist/score-four.css`,
+  plus hand-written types copied from `types/`. `dist/` is committed, like react-jigsaw, because hosts
+  install from GitHub (`"score-four": "github:arissafram/score-four#main"`). Rebuild before committing.
+- `three` is a dependency (external in the bundle, resolved by the host's bundler); `react` is an
+  optional peer dependency (only needed for `ScoreFour`).
+- CSS: every rule is under `.score-four`, variables are `--sf-*`. The root is `height: 100%`
+  (min 520px), so the host sizes it by giving its container a height.
+- Usage: `import { ScoreFour } from 'score-four'; import 'score-four/styles';`
+
 ## Running
-`python3 -m http.server 8080` from this folder (configured in `.claude/launch.json` as `score-four`).
+Tests: `npm test`. Standalone: `python3 -m http.server 8080` from this folder (configured in `.claude/launch.json` as `score-four`).
 Open http://localhost:8080.
 
 ## Working rules for build sessions

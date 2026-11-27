@@ -101,7 +101,8 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
-  new ResizeObserver(resize).observe(container);
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(container);
   resize();
 
   // --- picking
@@ -189,5 +190,16 @@ export function createScene(container, { onPegClick = () => {}, onPegHover = () 
       moveCamera(controls.target.clone().add(new THREE.Vector3(0, d, 0.01)));
     },
     resetCamera() { moveCamera(HOME.clone()); },
+    // stop rendering and free everything (GPU resources, observers, canvas)
+    destroy() {
+      renderer.setAnimationLoop(null);
+      resizeObserver.disconnect();
+      controls.dispose();
+      scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+      for (const m of [...Object.values(mats), hitMat, plinth.material]) m.dispose();
+      renderer.dispose();
+      renderer.forceContextLoss();
+      el.remove();
+    },
   };
 }
