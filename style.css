@@ -33,6 +33,10 @@
 .score-four .sf-zoom button { width: 32px; height: 32px; padding: 0; text-align: center; font-size: 1.1rem; line-height: 1; }
 .score-four .sf-zoom button:hover { background: var(--sf-field); border-color: var(--sf-paper); color: var(--sf-paper); }
 @media not (any-pointer: fine) { .score-four .sf-zoom { display: none; } }
+/* no WebGL: a note instead of the board; camera controls are hidden, the mini-map still plays */
+.score-four .sf-fallback { margin: 0; padding: 24px; max-width: 36em; font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
+.score-four.sf-no-3d .sf-view { min-height: 0; }
+.score-four.sf-no-3d :is(.sf-zoom, .sf-hint, .sf-btn-top, .sf-btn-reset) { display: none; }
 .score-four .sf-hint { margin: 0; padding: 10px 24px 14px; font-size: 0.75rem; }
 
 .score-four .sf-panel {

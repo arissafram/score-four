@@ -41,6 +41,25 @@ const TEMPLATE = `
   </aside>
 </div>`;
 
+// No WebGL (disabled, blocked or out of contexts): Three.js throws while creating the renderer.
+// Instead of crashing the host page, show a note in the view and keep the game playable on the mini-map.
+function createSceneOrFallback(view, handlers) {
+  try {
+    return createScene(view, handlers);
+  } catch (err) {
+    console.warn('Score Four: 3D view unavailable, falling back to the mini-map.', err);
+    const root = view.closest('.score-four');
+    root.classList.add('sf-no-3d');
+    const note = document.createElement('p');
+    note.className = 'sf-fallback';
+    note.textContent = "The 3D view can't load because WebGL is turned off in this browser. You can still play on the layer grids.";
+    view.appendChild(note);
+    root.querySelector('.sf-panel-toggle').setAttribute('aria-expanded', 'true'); // grids must be visible
+    const noop = () => {};
+    return { setBead: noop, clearBeads: noop, setGhost: noop, flash: noop, topView: noop, resetCamera: noop, zoomBy: noop, getDistance: () => 0, destroy: noop };
+  }
+}
+
 /**
  * @param {HTMLElement} root  element to render into (its contents are replaced)
  * @param {{ opponent?: '2p'|'cpu', first?: 'human'|'cpu', showTitle?: boolean, createWorker?: () => Worker }} [options]
@@ -75,7 +94,7 @@ export function mount(root, options = {}) {
   const cpuPlayer = () => ($('first').value === 'cpu' ? 1 : 2);
   const cpuTurn = () => vsCpu() && !game.winner && !game.draw && game.turn === cpuPlayer();
 
-  const scene = createScene($('view'), {
+  const scene = createSceneOrFallback($('view'), {
     onPegClick: play,
     onPegHover(peg) { hoverPeg = peg; refresh(); },
   });
@@ -159,7 +178,7 @@ export function mount(root, options = {}) {
       worker.terminate();
       scene.destroy();
       root.innerHTML = '';
-      root.classList.remove('score-four');
+      root.classList.remove('score-four', 'sf-no-3d');
     },
   };
 }

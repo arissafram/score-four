@@ -30,6 +30,8 @@ All elements use `sf-` classes (no ids, so several boards can coexist) under a r
   - `.sf-score` text: "Black 0 · White 0".
 - Zoom buttons `.sf-btn-zoom-in` / `.sf-btn-zoom-out` overlay the view's bottom-right corner; shown only
   when the device has a fine pointer (`any-pointer: fine`), hidden on touch-only devices (pinch instead).
+- No WebGL: if creating the scene throws, the root gets `sf-no-3d`, the view shows a `.sf-fallback` note,
+  the camera buttons/zoom/hint are hidden, the Settings panel starts open, and the game is played on the mini-map.
 - When the root is narrower than 700px (container query, not viewport) the panel stacks under the view,
   and its contents (`.sf-panel-body`) collapse behind a `.sf-panel-toggle` button labelled "Settings"
   (`aria-expanded`, closed at start, caret on the right flips). In the wide layout the toggle is hidden.

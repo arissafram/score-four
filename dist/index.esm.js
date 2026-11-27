@@ -1,121 +1,121 @@
 import { useRef as It, useEffect as Ct, createElement as St } from "react";
-import * as a from "three";
-import { OrbitControls as Tt } from "three/addons/controls/OrbitControls.js";
-function Dt(n, l, d) {
-  return n + 4 * l + 16 * d;
+import * as c from "three";
+import { OrbitControls as Dt } from "three/addons/controls/OrbitControls.js";
+function Tt(n, a, u) {
+  return n + 4 * a + 16 * u;
 }
 const q = (n) => n >= 0 && n < 4, Pt = (() => {
   const n = [];
-  for (let l = -1; l <= 1; l++) for (let d = -1; d <= 1; d++) for (let f = -1; f <= 1; f++)
-    if (!((l || d || f) <= 0))
-      for (let i = 0; i < 4; i++) for (let r = 0; r < 4; r++) for (let w = 0; w < 4; w++)
-        !q(i + 3 * l) || !q(r + 3 * d) || !q(w + 3 * f) || n.push([0, 1, 2, 3].map((u) => Dt(i + u * l, r + u * d, w + u * f)));
+  for (let a = -1; a <= 1; a++) for (let u = -1; u <= 1; u++) for (let l = -1; l <= 1; l++)
+    if (!((a || u || l) <= 0))
+      for (let r = 0; r < 4; r++) for (let s = 0; s < 4; s++) for (let w = 0; w < 4; w++)
+        !q(r + 3 * a) || !q(s + 3 * u) || !q(w + 3 * l) || n.push([0, 1, 2, 3].map((d) => Tt(r + d * a, s + d * u, w + d * l)));
   return n;
 })(), dt = Array.from({ length: 64 }, () => []);
-for (const n of Pt) for (const l of n) dt[l].push(n);
-function lt() {
+for (const n of Pt) for (const a of n) dt[a].push(n);
+function at() {
   return { cells: Array(64).fill(0), heights: Array(16).fill(0), turn: 1, winner: 0, winLine: null, draw: !1, moves: [] };
 }
-function mt(n, l) {
-  return !n.winner && !n.draw && l >= 0 && l < 16 && n.heights[l] < 4;
+function mt(n, a) {
+  return !n.winner && !n.draw && a >= 0 && a < 16 && n.heights[a] < 4;
 }
-function Rt(n, l) {
-  if (!mt(n, l)) return -1;
-  const d = n.turn, f = l + 16 * n.heights[l];
-  n.cells[f] = d, n.heights[l]++, n.moves.push(l);
-  for (const s of dt[f])
-    if (s.every((i) => n.cells[i] === d)) {
-      n.winner = d, n.winLine = s.slice();
+function Rt(n, a) {
+  if (!mt(n, a)) return -1;
+  const u = n.turn, l = a + 16 * n.heights[a];
+  n.cells[l] = u, n.heights[a]++, n.moves.push(a);
+  for (const i of dt[l])
+    if (i.every((r) => n.cells[r] === u)) {
+      n.winner = u, n.winLine = i.slice();
       break;
     }
-  return !n.winner && n.moves.length === 64 && (n.draw = !0), n.turn = d === 1 ? 2 : 1, f;
+  return !n.winner && n.moves.length === 64 && (n.draw = !0), n.turn = u === 1 ? 2 : 1, l;
 }
-const O = 1, ht = 0.5, pt = 0.3, N = pt + 4 * ht + 0.1, at = new a.Vector3(5.5, 6.5, 8), Ut = new a.Vector3(0, 1, 0), Z = (n) => [(n % 4 - 1.5) * O, (Math.floor(n / 4) - 1.5) * O], K = (n) => pt + n * ht;
-function zt(n, { onPegClick: l = () => {
-}, onPegHover: d = () => {
+const G = 1, ht = 0.5, pt = 0.3, N = pt + 4 * ht + 0.1, lt = new c.Vector3(5.5, 6.5, 8), Bt = new c.Vector3(0, 1, 0), Z = (n) => [(n % 4 - 1.5) * G, (Math.floor(n / 4) - 1.5) * G], K = (n) => pt + n * ht;
+function zt(n, { onPegClick: a = () => {
+}, onPegHover: u = () => {
 } } = {}) {
-  const f = new a.WebGLRenderer({ antialias: !0 });
-  f.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)), n.appendChild(f.domElement);
-  const s = new a.Scene();
-  s.background = new a.Color(1916886);
-  const i = new a.PerspectiveCamera(40, 1, 0.1, 100);
-  i.position.copy(at), s.add(new a.HemisphereLight(16777215, 10066329, 1.9));
-  const r = new a.DirectionalLight(16777215, 1.1);
-  r.position.set(-4, 10, 6), s.add(r);
-  const w = 16765952, u = (t, o = {}) => new a.MeshLambertMaterial({ color: t, flatShading: !1, ...o }), e = {
-    board: u(16777215),
-    peg: u(0),
-    pegHi: u(w, { emissive: w, emissiveIntensity: 0.4 }),
-    1: u(1118481),
-    2: u(16777215),
-    red: u(w, { emissive: w, emissiveIntensity: 0.4 }),
-    pale: u(16774048, { emissive: 16774048, emissiveIntensity: 0.4 }),
-    ghost1: u(0, { transparent: !0, opacity: 0.35, depthWrite: !1 }),
-    ghost2: u(16777215, { transparent: !0, opacity: 0.55, depthWrite: !1 })
-  }, y = new a.Mesh(new a.BoxGeometry(4.4 * O, 0.24, 4.4 * O), e.board);
-  y.position.y = -0.12, s.add(y);
-  const x = new a.Mesh(new a.BoxGeometry(4.4 * O, 0.1, 4.4 * O), u(0));
-  x.position.y = -0.29, s.add(x);
-  const S = new a.CylinderGeometry(0.05, 0.05, N, 24), k = new a.CylinderGeometry(0.45, 0.45, N + 0.3, 8), D = new a.MeshBasicMaterial({ visible: !1 }), z = [], Y = [];
+  const l = new c.WebGLRenderer({ antialias: !0 });
+  l.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)), n.appendChild(l.domElement);
+  const i = new c.Scene();
+  i.background = new c.Color(1916886);
+  const r = new c.PerspectiveCamera(40, 1, 0.1, 100);
+  r.position.copy(lt), i.add(new c.HemisphereLight(16777215, 10066329, 1.9));
+  const s = new c.DirectionalLight(16777215, 1.1);
+  s.position.set(-4, 10, 6), i.add(s);
+  const w = 16765952, d = (t, o = {}) => new c.MeshLambertMaterial({ color: t, flatShading: !1, ...o }), e = {
+    board: d(16777215),
+    peg: d(0),
+    pegHi: d(w, { emissive: w, emissiveIntensity: 0.4 }),
+    1: d(1118481),
+    2: d(16777215),
+    red: d(w, { emissive: w, emissiveIntensity: 0.4 }),
+    pale: d(16774048, { emissive: 16774048, emissiveIntensity: 0.4 }),
+    ghost1: d(0, { transparent: !0, opacity: 0.35, depthWrite: !1 }),
+    ghost2: d(16777215, { transparent: !0, opacity: 0.55, depthWrite: !1 })
+  }, y = new c.Mesh(new c.BoxGeometry(4.4 * G, 0.24, 4.4 * G), e.board);
+  y.position.y = -0.12, i.add(y);
+  const x = new c.Mesh(new c.BoxGeometry(4.4 * G, 0.1, 4.4 * G), d(0));
+  x.position.y = -0.29, i.add(x);
+  const S = new c.CylinderGeometry(0.05, 0.05, N, 24), k = new c.CylinderGeometry(0.45, 0.45, N + 0.3, 8), T = new c.MeshBasicMaterial({ visible: !1 }), z = [], O = [];
   for (let t = 0; t < 16; t++) {
-    const [o, c] = Z(t), h = new a.Mesh(S, e.peg);
-    h.position.set(o, N / 2, c), s.add(h), z.push(h);
-    const v = new a.Mesh(k, D);
-    v.position.copy(h.position), v.userData.peg = t, s.add(v), Y.push(v);
+    const [o, f] = Z(t), h = new c.Mesh(S, e.peg);
+    h.position.set(o, N / 2, f), i.add(h), z.push(h);
+    const v = new c.Mesh(k, T);
+    v.position.copy(h.position), v.userData.peg = t, i.add(v), O.push(v);
   }
-  const A = [], L = 0.38, G = 0.075, E = 0.23, I = 0.15;
-  A.push(new a.Vector2(G, -E + 0.03));
+  const A = [], L = 0.38, Y = 0.075, E = 0.23, I = 0.15;
+  A.push(new c.Vector2(Y, -E + 0.03));
   for (let t = 0; t <= 12; t++) {
-    const o = -Math.PI / 2 + Math.min(t, 6) / 6 * (Math.PI / 2) + Math.max(t - 6, 0) / 6 * (Math.PI / 2), c = t <= 6 ? -E + I : E - I;
-    A.push(new a.Vector2(L - I + I * Math.cos(o), c + I * Math.sin(o))), t === 6 && A.push(new a.Vector2(L, E - I));
+    const o = -Math.PI / 2 + Math.min(t, 6) / 6 * (Math.PI / 2) + Math.max(t - 6, 0) / 6 * (Math.PI / 2), f = t <= 6 ? -E + I : E - I;
+    A.push(new c.Vector2(L - I + I * Math.cos(o), f + I * Math.sin(o))), t === 6 && A.push(new c.Vector2(L, E - I));
   }
-  A.push(new a.Vector2(G, E - 0.03)), A.push(new a.Vector2(G, -E + 0.03));
-  const U = new a.LatheGeometry(A, 48);
-  U.computeVertexNormals();
-  const C = /* @__PURE__ */ new Map(), g = [], b = new a.Mesh(U, e.ghost1);
-  b.visible = !1, s.add(b);
-  let T = null;
-  const p = new Tt(i, f.domElement);
-  p.target.copy(Ut), p.enableDamping = !0, p.enablePan = !1, p.minDistance = 5, p.maxDistance = 20, p.maxPolarAngle = Math.PI / 2 - 0.08, p.update();
+  A.push(new c.Vector2(Y, E - 0.03)), A.push(new c.Vector2(Y, -E + 0.03));
+  const B = new c.LatheGeometry(A, 48);
+  B.computeVertexNormals();
+  const C = /* @__PURE__ */ new Map(), g = [], b = new c.Mesh(B, e.ghost1);
+  b.visible = !1, i.add(b);
+  let D = null;
+  const p = new Dt(r, l.domElement);
+  p.target.copy(Bt), p.enableDamping = !0, p.enablePan = !1, p.minDistance = 5, p.maxDistance = 20, p.maxPolarAngle = Math.PI / 2 - 0.08, p.update();
   let M = null;
   function V(t) {
-    M = { from: i.position.clone(), to: t, t: 0 };
+    M = { from: r.position.clone(), to: t, t: 0 };
   }
   function tt() {
     const t = n.clientWidth || 1, o = n.clientHeight || 1;
-    f.setSize(t, o, !1), i.aspect = t / o, i.updateProjectionMatrix();
+    l.setSize(t, o, !1), r.aspect = t / o, r.updateProjectionMatrix();
   }
   const et = new ResizeObserver(tt);
   et.observe(n), tt();
-  const nt = new a.Raycaster(), ot = new a.Vector2();
+  const nt = new c.Raycaster(), ot = new c.Vector2();
   function rt(t) {
-    const o = f.domElement.getBoundingClientRect();
-    ot.set((t.clientX - o.left) / o.width * 2 - 1, -((t.clientY - o.top) / o.height) * 2 + 1), nt.setFromCamera(ot, i);
-    const c = nt.intersectObjects(Y)[0];
-    return c ? c.object.userData.peg : null;
+    const o = l.domElement.getBoundingClientRect();
+    ot.set((t.clientX - o.left) / o.width * 2 - 1, -((t.clientY - o.top) / o.height) * 2 + 1), nt.setFromCamera(ot, r);
+    const f = nt.intersectObjects(O)[0];
+    return f ? f.object.userData.peg : null;
   }
-  let P = null, _ = null;
-  const B = f.domElement;
-  B.addEventListener("pointerdown", (t) => {
+  let P = null, F = null;
+  const U = l.domElement;
+  U.addEventListener("pointerdown", (t) => {
     P = { x: t.clientX, y: t.clientY, moved: !1 }, t.pointerType === "touch" && kt(t);
-  }), B.addEventListener("pointermove", (t) => {
+  }), U.addEventListener("pointermove", (t) => {
     if (t.pointerType === "touch" && Lt(t), P && Math.hypot(t.clientX - P.x, t.clientY - P.y) > 5 && (P.moved = !0), P) return;
     const o = rt(t);
-    o !== _ && (_ = o, d(o));
-  }), B.addEventListener("pointerup", (t) => {
+    o !== F && (F = o, u(o));
+  }), U.addEventListener("pointerup", (t) => {
     t.pointerType === "touch" && st(t);
     const o = P;
     if (P = null, o && !o.moved) {
-      const c = rt(t);
-      c !== null && l(c);
+      const f = rt(t);
+      f !== null && a(f);
     }
-  }), B.addEventListener("pointercancel", (t) => {
+  }), U.addEventListener("pointercancel", (t) => {
     t.pointerType === "touch" && st(t), P = null;
-  }), B.addEventListener("pointerleave", () => {
-    _ !== null && (_ = null, d(null));
+  }), U.addEventListener("pointerleave", () => {
+    F !== null && (F = null, u(null));
   });
   const gt = 2, yt = 90, bt = 0.5, vt = 30, Mt = 30, H = /* @__PURE__ */ new Set();
-  let m = null, $ = !1, j = 0;
+  let m = null, $ = !1, _ = 0;
   function xt() {
     for (let t = n.parentElement; t && t !== document.body; t = t.parentElement) {
       const o = getComputedStyle(t).overflowY;
@@ -124,22 +124,22 @@ function zt(n, { onPegClick: l = () => {
     return document.scrollingElement || document.documentElement;
   }
   function kt(t) {
-    cancelAnimationFrame(j), H.add(t.pointerId), H.size === 1 ? m = {
+    cancelAnimationFrame(_), H.add(t.pointerId), H.size === 1 ? m = {
       x: t.clientX,
       y: t.clientY,
       lastY: t.clientY,
       t: t.timeStamp,
       vy: 0,
       mode: null,
-      camera: M ? M.to.clone() : i.position.clone(),
+      camera: M ? M.to.clone() : r.position.clone(),
       target: xt()
     } : m && !m.mode && (m.mode = "rotate");
   }
   function Lt(t) {
     if (!m || !H.has(t.pointerId)) return;
-    const o = Math.max(1, t.timeStamp - m.t), c = t.clientY - m.lastY;
-    if (m.vy = 0.7 * (c / o) + 0.3 * m.vy, m.lastY = t.clientY, m.t = t.timeStamp, m.mode === "scroll") {
-      m.target.scrollTop -= c;
+    const o = Math.max(1, t.timeStamp - m.t), f = t.clientY - m.lastY;
+    if (m.vy = 0.7 * (f / o) + 0.3 * m.vy, m.lastY = t.clientY, m.t = t.timeStamp, m.mode === "scroll") {
+      m.target.scrollTop -= f;
       return;
     }
     if (m.mode) return;
@@ -154,106 +154,106 @@ function zt(n, { onPegClick: l = () => {
     H.delete(t.pointerId), !(H.size || !m) && (m.mode === "scroll" && At(m.target, m.vy), m = null, $ = !1);
   }
   function At(t, o) {
-    let c = performance.now();
+    let f = performance.now();
     const h = (v) => {
-      const F = v - c;
-      c = v, t.scrollTop -= o * F, o *= Math.pow(0.95, F / 16), Math.abs(o) > 0.02 && (j = requestAnimationFrame(h));
+      const j = v - f;
+      f = v, t.scrollTop -= o * j, o *= Math.pow(0.95, j / 16), Math.abs(o) > 0.02 && (_ = requestAnimationFrame(h));
     };
-    j = requestAnimationFrame(h);
+    _ = requestAnimationFrame(h);
   }
   let X = [];
-  const it = new a.Clock();
-  return f.setAnimationLoop(() => {
+  const it = new c.Clock();
+  return l.setAnimationLoop(() => {
     const t = Math.min(it.getDelta(), 0.1);
     if (M) {
       M.t = Math.min(1, M.t + t / 0.6);
-      const c = 1 - Math.pow(1 - M.t, 3);
-      i.position.lerpVectors(M.from, M.to, c), i.lookAt(p.target), M.t >= 1 && (M = null);
+      const f = 1 - Math.pow(1 - M.t, 3);
+      r.position.lerpVectors(M.from, M.to, f), r.lookAt(p.target), M.t >= 1 && (M = null);
     }
     p.enabled = !M && !$, M || p.update();
-    for (let c = g.length - 1; c >= 0; c--) {
-      const h = g[c];
-      h.t = Math.min(1, h.t + t / 0.35), h.mesh.position.y = h.from + (h.to - h.from) * h.t * h.t, h.t >= 1 && g.splice(c, 1);
+    for (let f = g.length - 1; f >= 0; f--) {
+      const h = g[f];
+      h.t = Math.min(1, h.t + t / 0.35), h.mesh.position.y = h.from + (h.to - h.from) * h.t * h.t, h.t >= 1 && g.splice(f, 1);
     }
     const o = Math.floor(it.elapsedTime * 3) % 2 === 0;
-    for (const c of X) c.material = o ? c.userData.mat === e[2] ? e.pale : e.red : c.userData.mat;
-    f.render(s, i);
+    for (const f of X) f.material = o ? f.userData.mat === e[2] ? e.pale : e.red : f.userData.mat;
+    l.render(i, r);
   }), {
-    setBead(t, o, c = !0) {
-      const h = t % 16, v = Math.floor(t / 16), [F, Et] = Z(h);
-      C.has(t) && s.remove(C.get(t));
-      const W = new a.Mesh(U, e[o]);
-      W.userData.mat = e[o], W.position.set(F, K(v), Et), s.add(W), C.set(t, W), c && (W.position.y = N + 1, g.push({ mesh: W, from: N + 1, to: K(v), t: 0 }));
+    setBead(t, o, f = !0) {
+      const h = t % 16, v = Math.floor(t / 16), [j, Et] = Z(h);
+      C.has(t) && i.remove(C.get(t));
+      const W = new c.Mesh(B, e[o]);
+      W.userData.mat = e[o], W.position.set(j, K(v), Et), i.add(W), C.set(t, W), f && (W.position.y = N + 1, g.push({ mesh: W, from: N + 1, to: K(v), t: 0 }));
     },
     clearBeads() {
-      for (const t of C.values()) s.remove(t);
+      for (const t of C.values()) i.remove(t);
       C.clear(), g.length = 0, X = [];
     },
-    setGhost(t, o, c) {
-      if (T !== null && (z[T].material = e.peg), T = t, t == null || o > 3) {
-        b.visible = !1, T = null;
+    setGhost(t, o, f) {
+      if (D !== null && (z[D].material = e.peg), D = t, t == null || o > 3) {
+        b.visible = !1, D = null;
         return;
       }
       z[t].material = e.pegHi;
       const [h, v] = Z(t);
-      b.material = c === 2 ? e.ghost2 : e.ghost1, b.position.set(h, K(o), v), b.visible = !0;
+      b.material = f === 2 ? e.ghost2 : e.ghost1, b.position.set(h, K(o), v), b.visible = !0;
     },
     flash(t) {
       X = t.map((o) => C.get(o)).filter(Boolean);
     },
     topView() {
-      const t = i.position.distanceTo(p.target);
-      V(p.target.clone().add(new a.Vector3(0, t, 0.01)));
+      const t = r.position.distanceTo(p.target);
+      V(p.target.clone().add(new c.Vector3(0, t, 0.01)));
     },
     resetCamera() {
-      V(at.clone());
+      V(lt.clone());
     },
     // smooth zoom step: factor < 1 moves closer; clamped to the controls' distance limits
     zoomBy(t) {
-      const o = (M ? M.to : i.position).clone().sub(p.target);
-      o.setLength(a.MathUtils.clamp(o.length() * t, p.minDistance, p.maxDistance)), V(p.target.clone().add(o));
+      const o = (M ? M.to : r.position).clone().sub(p.target);
+      o.setLength(c.MathUtils.clamp(o.length() * t, p.minDistance, p.maxDistance)), V(p.target.clone().add(o));
     },
     getDistance() {
-      return i.position.distanceTo(p.target);
+      return r.position.distanceTo(p.target);
     },
     // stop rendering and free everything (GPU resources, observers, canvas)
     destroy() {
-      f.setAnimationLoop(null), cancelAnimationFrame(j), et.disconnect(), p.dispose(), s.traverse((t) => {
+      l.setAnimationLoop(null), cancelAnimationFrame(_), et.disconnect(), p.dispose(), i.traverse((t) => {
         t.geometry && t.geometry.dispose();
       });
-      for (const t of [...Object.values(e), D, x.material]) t.dispose();
-      f.dispose(), f.forceContextLoss(), B.remove();
+      for (const t of [...Object.values(e), T, x.material]) t.dispose();
+      l.dispose(), l.forceContextLoss(), U.remove();
     }
   };
 }
-const R = 24, J = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), ct = "#000", Bt = "#fff", ft = "#ffd400", Wt = "#1d3fd6";
-function Ot(n, { onPegClick: l = () => {
+const R = 24, J = Math.max(2, Math.min(window.devicePixelRatio || 1, 3)), ct = "#000", Ut = "#fff", ft = "#ffd400", Wt = "#1d3fd6";
+function Gt(n, { onPegClick: a = () => {
 } } = {}) {
-  const d = [];
+  const u = [];
   n.innerHTML = "";
-  for (let s = 0; s < 4; s++) {
-    const i = document.createElement("div");
-    i.className = "layer", i.textContent = `Layer ${s + 1}`;
-    const r = document.createElement("canvas");
-    r.width = r.height = R * 4 * J, r.style.display = "block", r.style.cursor = "pointer", r.addEventListener("click", (w) => {
-      const u = r.getBoundingClientRect(), e = Math.floor((w.clientX - u.left) / u.width * 4), y = Math.floor((w.clientY - u.top) / u.height * 4);
-      e >= 0 && e < 4 && y >= 0 && y < 4 && l(e + 4 * y);
-    }), i.appendChild(r), n.appendChild(i), d[s] = r;
+  for (let i = 0; i < 4; i++) {
+    const r = document.createElement("div");
+    r.className = "layer", r.textContent = `Layer ${i + 1}`;
+    const s = document.createElement("canvas");
+    s.width = s.height = R * 4 * J, s.style.display = "block", s.style.cursor = "pointer", s.addEventListener("click", (w) => {
+      const d = s.getBoundingClientRect(), e = Math.floor((w.clientX - d.left) / d.width * 4), y = Math.floor((w.clientY - d.top) / d.height * 4);
+      e >= 0 && e < 4 && y >= 0 && y < 4 && a(e + 4 * y);
+    }), r.appendChild(s), n.appendChild(r), u[i] = s;
   }
-  function f(s, i = null) {
-    const r = new Set(s.winLine || []);
+  function l(i, r = null) {
+    const s = new Set(i.winLine || []);
     let w = -1;
-    i !== null && !s.winner && !s.draw && s.heights[i] < 4 && (w = i + 16 * s.heights[i]);
-    for (let u = 0; u < 4; u++) {
-      const e = d[u].getContext("2d");
+    r !== null && !i.winner && !i.draw && i.heights[r] < 4 && (w = r + 16 * i.heights[r]);
+    for (let d = 0; d < 4; d++) {
+      const e = u[d].getContext("2d");
       e.setTransform(J, 0, 0, J, 0, 0), e.fillStyle = Wt, e.fillRect(0, 0, R * 4, R * 4);
       for (let y = 0; y < 16; y++) {
-        const x = y + 16 * u, S = (y % 4 + 0.5) * R, k = (Math.floor(y / 4) + 0.5) * R, D = s.cells[x];
-        e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), D ? (e.fillStyle = D === 1 ? ct : Bt, e.fill(), e.strokeStyle = ct, e.lineWidth = 1, e.stroke()) : (e.fillStyle = "rgba(255,255,255,0.55)", e.beginPath(), e.arc(S, k, 1.5, 0, Math.PI * 2), e.fill()), x === w && (e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), e.setLineDash([3, 3]), e.strokeStyle = ft, e.lineWidth = 1.5, e.stroke()), r.has(x) && (e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.44, 0, Math.PI * 2), e.strokeStyle = ft, e.lineWidth = 2, e.stroke());
+        const x = y + 16 * d, S = (y % 4 + 0.5) * R, k = (Math.floor(y / 4) + 0.5) * R, T = i.cells[x];
+        e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), T ? (e.fillStyle = T === 1 ? ct : Ut, e.fill(), e.strokeStyle = ct, e.lineWidth = 1, e.stroke()) : (e.fillStyle = "rgba(255,255,255,0.55)", e.beginPath(), e.arc(S, k, 1.5, 0, Math.PI * 2), e.fill()), x === w && (e.beginPath(), e.arc(S, k, R * 0.36, 0, Math.PI * 2), e.setLineDash([3, 3]), e.strokeStyle = ft, e.lineWidth = 1.5, e.stroke()), s.has(x) && (e.setLineDash([]), e.beginPath(), e.arc(S, k, R * 0.44, 0, Math.PI * 2), e.strokeStyle = ft, e.lineWidth = 2, e.stroke());
       }
     }
   }
-  return { render: f };
+  return { render: l };
 }
 const wt = `function ct(e, t, o) {
   return e + 4 * t + 16 * o;
@@ -436,17 +436,17 @@ self.onmessage = (e) => {
   self.postMessage({ id: t, peg: yt(o, Z[i] || Z.medium) });
 };
 `, ut = typeof self < "u" && self.Blob && new Blob(["URL.revokeObjectURL(import.meta.url);", wt], { type: "text/javascript;charset=utf-8" });
-function Yt(n) {
-  let l;
+function Ot(n) {
+  let a;
   try {
-    if (l = ut && (self.URL || self.webkitURL).createObjectURL(ut), !l) throw "";
-    const d = new Worker(l, {
+    if (a = ut && (self.URL || self.webkitURL).createObjectURL(ut), !a) throw "";
+    const u = new Worker(a, {
       type: "module",
       name: n?.name
     });
-    return d.addEventListener("error", () => {
-      (self.URL || self.webkitURL).revokeObjectURL(l);
-    }), d;
+    return u.addEventListener("error", () => {
+      (self.URL || self.webkitURL).revokeObjectURL(a);
+    }), u;
   } catch {
     return new Worker(
       "data:text/javascript;charset=utf-8," + encodeURIComponent(wt),
@@ -457,8 +457,8 @@ function Yt(n) {
     );
   }
 }
-function Gt() {
-  return new Yt();
+function Yt() {
+  return new Ot();
 }
 const Q = { 1: "Black", 2: "White" };
 let Ht = 0;
@@ -494,68 +494,82 @@ const Nt = `
     </div>
   </aside>
 </div>`;
-function Vt(n, l = {}) {
-  const { opponent: d = "2p", first: f = "human", showTitle: s = !0, createWorker: i = Gt } = l;
+function Vt(n, a) {
+  try {
+    return zt(n, a);
+  } catch (u) {
+    console.warn("Score Four: 3D view unavailable, falling back to the mini-map.", u);
+    const l = n.closest(".score-four");
+    l.classList.add("sf-no-3d");
+    const i = document.createElement("p");
+    i.className = "sf-fallback", i.textContent = "The 3D view can't load because WebGL is turned off in this browser. You can still play on the layer grids.", n.appendChild(i), l.querySelector(".sf-panel-toggle").setAttribute("aria-expanded", "true");
+    const r = () => {
+    };
+    return { setBead: r, clearBeads: r, setGhost: r, flash: r, topView: r, resetCamera: r, zoomBy: r, getDistance: () => 0, destroy: r };
+  }
+}
+function Ft(n, a = {}) {
+  const { opponent: u = "2p", first: l = "human", showTitle: i = !0, createWorker: r = Yt } = a;
   n.classList.add("score-four"), n.innerHTML = Nt;
-  const r = (g) => n.querySelector(`.sf-${g}`);
-  s || r("wordmark").remove();
+  const s = (g) => n.querySelector(`.sf-${g}`);
+  i || s("wordmark").remove();
   const w = `sf-panel-body-${++Ht}`;
-  r("panel-body").id = w, r("panel-toggle").setAttribute("aria-controls", w), r("mode").value = d, r("first").value = f;
-  const u = { 1: 0, 2: 0 };
-  let e = lt(), y = null, x = !1, S = 0, k = !1;
-  const D = i();
-  D.onmessage = (g) => {
+  s("panel-body").id = w, s("panel-toggle").setAttribute("aria-controls", w), s("mode").value = u, s("first").value = l;
+  const d = { 1: 0, 2: 0 };
+  let e = at(), y = null, x = !1, S = 0, k = !1;
+  const T = r();
+  T.onmessage = (g) => {
     k || g.data.id !== S || (x = !1, I(g.data.peg, !0));
   };
-  const z = () => r("mode").value === "cpu", Y = () => r("first").value === "cpu" ? 1 : 2, A = () => z() && !e.winner && !e.draw && e.turn === Y(), L = zt(r("view"), {
+  const z = () => s("mode").value === "cpu", O = () => s("first").value === "cpu" ? 1 : 2, A = () => z() && !e.winner && !e.draw && e.turn === O(), L = Vt(s("view"), {
     onPegClick: I,
     onPegHover(g) {
       y = g, E();
     }
-  }), G = Ot(r("minimap"), { onPegClick: I });
+  }), Y = Gt(s("minimap"), { onPegClick: I });
   function E() {
     const g = e.winner || e.draw, b = y !== null && !g && !A() && e.heights[y] < 4;
-    L.setGhost(b ? y : null, b ? e.heights[y] : 0, e.turn), G.render(e, y);
-    const T = z();
-    r("first").disabled = !T, r("status").textContent = e.winner ? T ? e.winner === Y() ? "Computer wins!" : "You win!" : `${Q[e.winner]} wins!` : e.draw ? "Draw" : A() ? "Computer is thinking…" : T ? `Your turn (${Q[e.turn].toLowerCase()})` : `${Q[e.turn]}'s turn`, r("score").textContent = `Black ${u[1]} · White ${u[2]}`;
+    L.setGhost(b ? y : null, b ? e.heights[y] : 0, e.turn), Y.render(e, y);
+    const D = z();
+    s("first").disabled = !D, s("status").textContent = e.winner ? D ? e.winner === O() ? "Computer wins!" : "You win!" : `${Q[e.winner]} wins!` : e.draw ? "Draw" : A() ? "Computer is thinking…" : D ? `Your turn (${Q[e.turn].toLowerCase()})` : `${Q[e.turn]}'s turn`, s("score").textContent = `Black ${d[1]} · White ${d[2]}`;
   }
   function I(g, b = !1) {
     if (k || !b && (x || A()) || !mt(e, g)) return !1;
-    const T = e.turn, p = Rt(e, g);
-    return p < 0 ? !1 : (L.setBead(p, T), e.winner && (u[e.winner]++, L.flash(e.winLine)), E(), U(), !0);
+    const D = e.turn, p = Rt(e, g);
+    return p < 0 ? !1 : (L.setBead(p, D), e.winner && (d[e.winner]++, L.flash(e.winLine)), E(), B(), !0);
   }
-  function U() {
+  function B() {
     if (!A()) return;
     x = !0;
     const g = ++S, b = JSON.parse(JSON.stringify(e));
-    D.postMessage({ id: g, state: b, level: "hard" });
+    T.postMessage({ id: g, state: b, level: "hard" });
   }
   function C() {
-    k || (S++, x = !1, e = lt(), L.clearBeads(), E(), U());
+    k || (S++, x = !1, e = at(), L.clearBeads(), E(), B());
   }
-  return r("btn-top").onclick = () => L.topView(), r("btn-reset").onclick = () => L.resetCamera(), r("btn-new").onclick = C, r("btn-zoom-in").onclick = () => L.zoomBy(0.8), r("btn-zoom-out").onclick = () => L.zoomBy(1.25), r("panel-toggle").onclick = (g) => {
+  return s("btn-top").onclick = () => L.topView(), s("btn-reset").onclick = () => L.resetCamera(), s("btn-new").onclick = C, s("btn-zoom-in").onclick = () => L.zoomBy(0.8), s("btn-zoom-out").onclick = () => L.zoomBy(1.25), s("panel-toggle").onclick = (g) => {
     const b = g.currentTarget;
     b.setAttribute("aria-expanded", String(b.getAttribute("aria-expanded") !== "true"));
-  }, r("mode").onchange = C, r("first").onchange = C, E(), U(), {
+  }, s("mode").onchange = C, s("first").onchange = C, E(), B(), {
     get game() {
       return e;
     },
     play: I,
     newGame: C,
     destroy() {
-      k || (k = !0, D.terminate(), L.destroy(), n.innerHTML = "", n.classList.remove("score-four"));
+      k || (k = !0, T.terminate(), L.destroy(), n.innerHTML = "", n.classList.remove("score-four", "sf-no-3d"));
     }
   };
 }
-function Ft({ className: n, style: l, opponent: d, first: f, showTitle: s, onReady: i }) {
-  const r = It(null);
+function $t({ className: n, style: a, opponent: u, first: l, showTitle: i, onReady: r }) {
+  const s = It(null);
   return Ct(() => {
-    const w = Vt(r.current, { opponent: d, first: f, showTitle: s });
-    return i?.(w), () => w.destroy();
-  }, [d, f, s]), St("div", { className: n, style: l, ref: r });
+    const w = Ft(s.current, { opponent: u, first: l, showTitle: i });
+    return r?.(w), () => w.destroy();
+  }, [u, l, i]), St("div", { className: n, style: a, ref: s });
 }
 export {
-  Ft as ScoreFour,
-  Ft as default,
-  Vt as mount
+  $t as ScoreFour,
+  $t as default,
+  Ft as mount
 };
