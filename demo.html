@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Score Four embed demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 32px auto; padding: 0 16px; color: #222; line-height: 1.5; }
+    code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+    score-four { border: 1px solid #ccc; }
+  </style>
+  <!-- Run `npm run build` first. From a CDN this would be https://unpkg.com/score-four -->
+  <script type="module" src="./dist/score-four.js"></script>
+</head>
+<body>
+  <h1>Score Four embed demo</h1>
+  <p><code>&lt;score-four opponent="cpu"&gt;&lt;/score-four&gt;</code>, loaded from <code>dist/score-four.js</code>.</p>
+  <score-four opponent="cpu" style="height: 600px"></score-four>
+  <p style="height: 60vh">More page below the game, to check that it still scrolls…</p>
+</body>
+</html>

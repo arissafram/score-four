@@ -1,30 +1,35 @@
 {
   "name": "score-four",
   "version": "1.0.0",
-  "description": "3D Score Four (4×4×4 connect four) as a React component or a framework-free mount() function",
+  "description": "Score Four (4×4×4 connect four in 3D) as a <score-four> custom element, a mount() function or a React component.",
   "type": "module",
-  "main": "dist/index.esm.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.esm.js",
+  "module": "./dist/index.esm.js",
+  "types": "./types/index.d.ts",
+  "unpkg": "./dist/score-four.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.esm.js"
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "default": "./dist/index.esm.js"
     },
+    "./standalone": "./dist/score-four.js",
     "./styles": {
-      "types": "./dist/styles.d.ts",
+      "types": "./types/styles.d.ts",
       "default": "./dist/score-four.css"
-    }
+    },
+    "./package.json": "./package.json"
   },
-  "sideEffects": [
-    "*.css"
-  ],
+  "sideEffects": true,
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "scripts": {
-    "build": "vite build && cp types/*.d.ts dist/",
-    "test": "node --test"
+    "build": "vite build && vite build --mode standalone",
+    "dev": "vite",
+    "test": "node --test",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "three": "0.160.0"
@@ -41,9 +46,21 @@
     "react": "^19.1.0",
     "vite": "^7.0.5"
   },
+  "keywords": [
+    "game",
+    "score-four",
+    "connect-four",
+    "three",
+    "web-component",
+    "custom-element",
+    "react",
+    "embed"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/arissafram/score-four.git"
-  }
+    "url": "git+https://github.com/arissafram/score-four.git"
+  },
+  "homepage": "https://github.com/arissafram/score-four#readme",
+  "bugs": "https://github.com/arissafram/score-four/issues"
 }
