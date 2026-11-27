@@ -40,3 +40,15 @@ export interface ScoreFourProps extends Omit<ScoreFourOptions, 'createWorker'> {
 
 export function ScoreFour(props: ScoreFourProps): ReactElement;
 export default ScoreFour;
+
+/** `<score-four opponent="cpu" first="human" show-title="false">`. Registered on import. */
+export class ScoreFourElement extends HTMLElement {
+  /** The mount() handle, or null before it is connected. */
+  readonly game: ScoreFourHandle | null;
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'score-four': ScoreFourElement;
+  }
+}

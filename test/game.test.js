@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LINES, cellIndex, cellCoords, createGame, canDrop, drop, undo, legalMoves, cloneGame } from '../game.js';
+import { LINES, cellIndex, cellCoords, createGame, canDrop, drop, undo, legalMoves, cloneGame } from '../src/game.js';
 
 const peg = (x, y) => x + 4 * y;
 // Play a list of pegs; returns the state.

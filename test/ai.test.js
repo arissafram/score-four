@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createGame, drop, cloneGame } from '../game.js';
-import { bestMove, LEVELS } from '../ai.js';
+import { createGame, drop, cloneGame } from '../src/game.js';
+import { bestMove, LEVELS } from '../src/ai.js';
 
 const play = (pegs) => { const g = createGame(); for (const p of pegs) assert.notEqual(drop(g, p), -1); return g; };
 const FAST = { timeMs: 200 };
